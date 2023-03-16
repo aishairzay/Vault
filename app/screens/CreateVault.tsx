@@ -37,6 +37,8 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderRadius: 4,
         padding: 4,
+        justifyContent: 'center', 
+        alignItems: 'center'
     },
     input: {
         backgroundColor: 'white',
@@ -60,7 +62,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         width: 100,
         height: 100,
-    }
+    },
+    disabledOption: {
+        opacity: 0.4,
+    },
+    disabledText: {
+        color: 'lightgray',
+    },
 });
 
 type CreateVaultScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CreateVault'>;
@@ -89,9 +97,9 @@ export default function CreateVault({ navigation }: Props) {
                     <Image source={require('../../assets/images/riddle.png')} />
                     <Text style={styles.imageText}>Solve a Riddle</Text>
                 </View>
-                <View>
+                <View style={styles.disabledOption}>
                     <Image source={require('../../assets/images/play.png')} />
-                    <Text style={styles.imageText}>Play a game</Text>
+                    <Text style={[styles.imageText, styles.disabledText]}>Play a game</Text>
                 </View>
             </View>
             <TextInput
@@ -104,17 +112,17 @@ export default function CreateVault({ navigation }: Props) {
             />
             <Text style={styles.headerText}>What's in the vault?</Text>
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <View style={{ marginRight: 10 }}>
+                <View style={{ marginRight: 10, ...styles.selectedOption }}>
                     <View style={styles.square} />
                     <Text style={styles.imageText}>A Secret Message</Text>
                 </View>
-                <View style={{ marginRight: 10 }}>
+                <View style={{ marginRight: 10, ...styles.disabledOption}}>
                     <Image source={require('../../assets/images/kitty.png')} style={{ width: 100, height: 100 }} />
-                    <Text style={styles.imageText}>An NFT</Text>
+                    <Text style={[styles.imageText, styles.disabledText]}>An NFT</Text>
                 </View>
-                <View>
+                <View style={styles.disabledOption}>
                     <View style={styles.square} />
-                    <Text style={styles.imageText}>
+                    <Text style={[styles.imageText, styles.disabledText]}>
                         Custon on- {"\n"}
                         chain Action
                     </Text>
