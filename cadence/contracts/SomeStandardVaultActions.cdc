@@ -3,11 +3,10 @@
 // Then specify the contract in the app when creating your vault to use it.
 import "MetadataViews"
 import "NonFungibleToken"
-import "MoharsVault"
+import "VaultService"
 
 pub contract SomeStandardVaultActions {
-  pub resource DestroyNFTAction: MoharsVault.VaultAction, MetadataViews.Resolver {
-
+  pub resource DestroyNFTAction: VaultService.VaultAction, MetadataViews.Resolver {
     pub fun getViews(): [Type] {
       return [
         Type<MetadataViews.Display>()
@@ -32,7 +31,7 @@ pub contract SomeStandardVaultActions {
       self.nftID = nftID
     }
 
-    pub fun execute(vault: &MoharsVault.Vault, address: Address) {
+    pub fun execute(vault: &VaultService.Vault, address: Address) {
       let nftCollection = self.nftAccess.borrow()
         ?? panic("Could not borrow NFT collection")
 

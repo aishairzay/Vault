@@ -1,4 +1,11 @@
-pub contract MoharsVault {
+import "MetadataViews"
+
+pub contract VaultService {
+
+  // To make vaults globally accessible, we wire up the vault collection
+  // resource with a global map here that can be used to access what account
+  // is holding a specific vault by ID.
+  pub let vaultAddresses: {UInt64: Address}
 
   // An action that can be run when a user opens a vault
   pub resource interface VaultAction {
@@ -8,14 +15,14 @@ pub contract MoharsVault {
     pub fun execute(vault: &Vault, address: Address)
   }
 
-  // To make vaults globally accessible, we wire up the vault collection
-  // resource with a global map here that can be used to access what account
-  // is holding a specific vault by ID.
-  pub let vaultAddresses: {UInt64: Address}
+  pub resource interface VaultCollectionPublic {
+    pub fun getIDs(): [UInt64]
+    pub fun borrowVault(uuid: UInt64): &Vault?
+  }
 
   // We keep a top-level collection of vaults that can be accessed by
   // the vault's UUID.
-  pub resource VaultCollection {
+  pub resource VaultCollection: VaultCollectionPublic {
     pub var vaults: @{UInt64: Vault} // Vault UUID to vault
 
     // allow deposits, withdraws, and transfers of a vault
@@ -33,7 +40,7 @@ pub contract MoharsVault {
       post {
           result == nil || result!.uuid == uuid: "The returned reference's ID does not match the requested ID"
       }
-      return nil
+      return &self.vaults[uuid] as &Vault?
     }
 
     destroy() {
@@ -44,10 +51,17 @@ pub contract MoharsVault {
       self.vaults <- {}
     }
   }
+  
 
   pub resource Vault {
     // ID for the vault, equivalent to the vault's unique UUID.
     pub let id: UInt64
+
+    // Description for the vault
+    pub let description: String
+
+    // Thumbnail for the vault
+    pub let thumbnail: String
 
     // The control string is used to verify if a user has access to a vault.
     // It is intended to be a hash of the vault's ID combined with the secret
@@ -61,7 +75,7 @@ pub contract MoharsVault {
 
     // The data string is used to store any secret string for the vault, and
     // should be encrypted using the same key as the control string.
-    pub let encryptedData: String?
+    pub let encryptedMessage: String?
 
     // If there is encrypted data, this should be set to let a consumer know
     // what algorithm was used for the symmetric encryption.
@@ -74,22 +88,34 @@ pub contract MoharsVault {
 
     // The vault should be able to store an action that can be
     // performed on it. These actions should be able to be executed by
-    // by a third party that has access to a derived public key.
-    pub let action: Capability<&{VaultAction}>?
+    // by a third party that has access to a derived public key and proves it
+    // by submitting a signature on-chain that includes the account address
+    // of who solved the riddle.
+    access(self) let action: Capability<&{VaultAction}>?
 
     pub fun getViews(): [Type] {
-      return []
+      return [
+        Type<MetadataViews.Display>()
+      ]
     }
 
     pub fun resolveView(_ view: Type): AnyStruct? {
-      return nil
+      return (
+        MetadataViews.Display(
+          name: "Vault #".concat(self.id.toString()),
+          description: self.description,
+          thumbnail: MetadataViews.HTTPFile(url: self.thumbnail)
+        )
+      )
     }
 
-    init(hashControl: String, hashAlgorithm: String, encryptedData: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?) {
+    init(description: String, thumbnail: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?) {
       self.id = self.uuid
+      self.description = description
+      self.thumbnail = thumbnail
       self.hashControl = hashControl
       self.hashAlgorithm = hashAlgorithm
-      self.encryptedData = encryptedData
+      self.encryptedMessage = encryptedMessage
       self.encryptionAlgorithm = encryptionAlgorithm
       self.derivedPublicKey = derivedPublicKey
       self.action = action
@@ -101,11 +127,13 @@ pub contract MoharsVault {
   }
 
   // Public method to create a vault
-  pub fun createVault(hashControl: String, hashAlgorithm: String, encryptedData: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?): @Vault {
+  pub fun createVault(description: String, thumbnail: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?): @Vault {
     return <- create Vault(
+      description: description,
+      thumbnail: thumbnail,
       hashControl: hashControl,
       hashAlgorithm: hashAlgorithm,
-      encryptedData: encryptedData,
+      encryptedMessage: encryptedMessage,
       encryptionAlgorithm: encryptionAlgorithm,
       derivedPublicKey: derivedPublicKey,
       action: action

@@ -1,10 +1,29 @@
 {
 	"contracts": {
-		"FungibleToken": "cadence/contracts/FungibleToken.cdc",
-		"MetadataViews": "cadence/contracts/MetadataViews.cdc",
-		"MoharsVault": "cadence/contracts/Vault.cdc",
-		"NonFungibleToken": "cadence/contracts/NonFungibleToken.cdc",
-		"SomeStandardVaultActions": "cadence/contracts/SomeStandardVaultActions.cdc"
+		"FungibleToken": {
+			"source": "cadence/contracts/FungibleToken.cdc",
+			"aliases": {
+				"emulator": "ee82856bf20e2aa6",
+				"mainnet": "f233dcee88fe0abe",
+				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"MetadataViews": {
+			"source": "cadence/contracts/MetadataViews.cdc",
+			"aliases": {
+				"mainnet": "1d7e57aa55817448",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"NonFungibleToken": {
+			"source": "cadence/contracts/NonFungibleToken.cdc",
+			"aliases": {
+				"mainnet": "1d7e57aa55817448",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"SomeStandardVaultActions": "cadence/contracts/SomeStandardVaultActions.cdc",
+		"VaultService": "cadence/contracts/VaultService.cdc"
 	},
 	"networks": {
 		"emulator": "127.0.0.1:3569",
@@ -14,22 +33,30 @@
 	},
 	"accounts": {
 		"default": {
-			"address": "f4a3472b32eac8d8",
-			"key": "01778f709e25ae25d11a947926466a7fa342db2cdb36dfadb6617a7533e7fc33"
+			"address": "0f7025fa05b578e3",
+			"key": "53170fc820cab4ff2c040ff93d28ab929670daf5a532a85de87682e276b2720b"
 		},
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
 			"key": "aca7bcca2c7925e5aae15cc5d05eafe6f9cee203568b1dbec8bb3352b0445743"
+		},
+		"testnet-account": {
+			"address": "afbe0473d4f45e37",
+			"key": "$VAULT_TESTNET_KEY"
 		}
 	},
 	"deployments": {
 		"emulator": {
 			"default": [
-				"FungibleToken",
 				"MetadataViews",
 				"NonFungibleToken",
 				"SomeStandardVaultActions",
-				"MoharsVault"
+				"VaultService"
+			]
+		},
+		"testnet": {
+			"testnet-account": [
+				"VaultService"
 			]
 		}
 	}
