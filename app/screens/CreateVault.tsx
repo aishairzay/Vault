@@ -4,6 +4,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../root';
 import { RouteProp } from '@react-navigation/native';
 import VaultButton from '../../components/VaultButton';
+import { getFlowAccount } from '../utils/getFlowAccount';
 
 const styles = StyleSheet.create({
     container: {
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderRadius: 4,
         padding: 4,
-        justifyContent: 'center', 
+        justifyContent: 'center',
         alignItems: 'center'
     },
     input: {
@@ -82,6 +83,12 @@ type Props = {
 
 export default function CreateVault({ navigation }: Props) {
 
+    const createVault = async () => {
+        const res = await getFlowAccount();
+        //console.log(res);
+    };
+
+
     return (
         <View style={styles.container}>
             <View style={styles.centerContainer}>
@@ -116,7 +123,7 @@ export default function CreateVault({ navigation }: Props) {
                     <View style={styles.square} />
                     <Text style={styles.imageText}>A Secret Message</Text>
                 </View>
-                <View style={{ marginRight: 10, ...styles.disabledOption}}>
+                <View style={{ marginRight: 10, ...styles.disabledOption }}>
                     <Image source={require('../../assets/images/kitty.png')} style={{ width: 100, height: 100 }} />
                     <Text style={[styles.imageText, styles.disabledText]}>An NFT</Text>
                 </View>
@@ -128,7 +135,7 @@ export default function CreateVault({ navigation }: Props) {
                     </Text>
                 </View>
             </View>
-            <VaultButton text="Create Vault" />
+            <VaultButton onPress={createVault} text="Create Vault" />
         </View>
     );
 }

@@ -1,21 +1,18 @@
 import axios from "axios";
 import { ec as EC } from "elliptic";
+import { LILICO_TOKEN } from '@env';
 import * as secp from '@noble/secp256k1';
 
 const LILICO_API = "https://openapi.lilico.org/v1/address";
 // Public token in the URL
 const FLOWSCAN_API =
     "https://query.flowgraph.co/?token=5a477c43abe4ded25f1e8cc778a34911134e0590";
+    
 
-export interface Account {
-    address: string;
-    publicKey: string;
-    privateKey: string;
-}
 
 export const createAccount = async (
-    network: string = "testnet"
-): Promise<Account> => {
+    network = "testnet"
+) => {
     let lilicoEndpoint;
     let flowScanEndpoint;
     if (network === "testnet") {
@@ -27,15 +24,23 @@ export const createAccount = async (
     } else {
         throw new Error(`Invalid network ${network}}`);
     }
-    const ec = new EC("p256");
-    const keyPair = ec.genKeyPair();
+    console.log(secp.utils.randomPrivateKey);
     const privKey = secp.utils.randomPrivateKey();
-    const pubKey = secp.getPublicKey(privKey);
-    const publicKey = keyPair.getPublic("hex").replace(/^04/, "");
-    const privateKey = keyPair.getPrivate("hex");
-    console.log(pubKey)
+    console.log("2");
+    //const pubKey = secp.getPublicKey(privKey);
+    //console.log(pubKey)
     console.log('------')
-    console.log(publicKey)
+    return;
+    console.log("1");
+    const ec = new EC("p256");
+    console.log("1.1");
+    const keyPair = ec.genKeyPair();
+    console.log("1.2");
+    const publicKey = keyPair.getPublic("hex").replace(/^04/, "");
+    console.log("1.3");
+    const privateKey = keyPair.getPrivate("hex");
+
+    console.log("2");
 
     try {
         const lilicoResponse = await axios.post(
@@ -49,11 +54,13 @@ export const createAccount = async (
             {
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8",
-                    Authorization: process.env.LILICO_TOKEN,
+                    Authorization: LILICO_TOKEN,
                 },
             }
         );
+        console.log("3");
         const txId = lilicoResponse.data.data.txId;
+        console.log("4");
         if (!txId) {
             throw new Error("Was not able to get a reply from Lilico");
         }
@@ -90,7 +97,7 @@ export const createAccount = async (
             }
             accountAddress =
                 flowScanResponse.data.data.checkTransaction.transaction.events.edges.filter(
-                    (e: any) => e.node.type.id.includes("AccountCreated")
+                    (e) => e.node.type.id.includes("AccountCreated")
                 )[0].node.fields[0].value;
         } while (count++ < 10 && !accountAddress);
 
