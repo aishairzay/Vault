@@ -8,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export type RootStackParamList = {
   Home: undefined;
-  Vault: { isLocked: boolean; };
+  Vault: { vaultID: String; };
   CreateVault: undefined;
 };
 

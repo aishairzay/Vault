@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../root';
@@ -40,7 +40,9 @@ const styles = StyleSheet.create({
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: 40,
+    marginBottom: 40
   },
   dividerText: {
     color: 'black',
@@ -54,7 +56,8 @@ const styles = StyleSheet.create({
     color: 'green',
     fontWeight: 'bold',
     fontSize: 24,
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
+    textDecorationLine: 'underline'
   },
 });
 
@@ -71,7 +74,7 @@ export default function Home({ navigation }: Props) {
   const [vaultId, setVaultId] = useState('');
 
   const handleGoToVault = () => {
-    navigation.navigate('Vault', { isLocked: false }); // TODO: replace isLocked with the VaultID
+    navigation.navigate('Vault', { vaultID: vaultId });
   };
 
   const handleGoToCreate = () => {
@@ -84,7 +87,7 @@ export default function Home({ navigation }: Props) {
         <Text style={styles.text}>Mohar's Vault</Text>
       </View>
       <Text style={{ color: 'white', marginHorizontal: 5, marginBottom: 5, marginTop: 48, alignSelf: 'flex-start', fontSize: 16 }}>Enter a Vault ID</Text>
-      <View style={[styles.inputContainer, { backgroundColor: 'white' }]}>
+      <KeyboardAvoidingView style={[styles.inputContainer, { backgroundColor: 'white' }]}>
         <TextInput
           style={styles.input}
           placeholder="Vault ID"
@@ -92,9 +95,10 @@ export default function Home({ navigation }: Props) {
           value={vaultId}
           onChangeText={setVaultId}
         />
-      </View>
-      <TouchableOpacity style={{ marginTop: 20, alignSelf: 'flex-start' }} onPress={handleGoToVault}>
-        <Text style={styles.headerText}>Go to Vault</Text>
+      </KeyboardAvoidingView>
+      <TouchableOpacity style={{ marginTop: 0, alignSelf: 'flex-start' }} onPress={handleGoToVault}>
+        
+        <Text style={styles.headerText}>Go to Vault {vaultId}</Text>
       </TouchableOpacity>
       <View style={styles.dividerContainer}>
         <Text style={styles.dividerText}>OR</Text>

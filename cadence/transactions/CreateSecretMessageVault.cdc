@@ -1,6 +1,6 @@
 import "VaultService"
 
-transaction(description: String, thumbnail: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?) {
+transaction(description: String, thumbnail: String, passwordSalt: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?) {
   let vaultCollection: &VaultService.VaultCollection
 
   prepare(signer: AuthAccount) {
@@ -17,7 +17,7 @@ transaction(description: String, thumbnail: String, hashControl: String, hashAlg
   }
 
   execute {
-    let vault <- VaultService.createVault(description: description, thumbnail: thumbnail, hashControl: hashControl, hashAlgorithm: hashAlgorithm, encryptedMessage: encryptedMessage, encryptionAlgorithm: encryptionAlgorithm, derivedPublicKey: derivedPublicKey, action: nil)
+    let vault <- VaultService.createVault(description: description, thumbnail: thumbnail, passwordSalt: passwordSalt, hashControl: hashControl, hashAlgorithm: hashAlgorithm, encryptedMessage: encryptedMessage, encryptionAlgorithm: encryptionAlgorithm, derivedPublicKey: derivedPublicKey, action: nil)
     self.vaultCollection.deposit(vault: <-vault)
   }
 }

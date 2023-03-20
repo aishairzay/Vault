@@ -7,6 +7,10 @@ pub contract VaultService {
   // is holding a specific vault by ID.
   pub let vaultAddresses: {UInt64: Address}
 
+  access(contract) fun updateVaultAddress(uuid: UInt64, address: Address?) {
+    self.vaultAddresses[uuid] = address
+  }
+
   // An action that can be run when a user opens a vault
   pub resource interface VaultAction {
     // The vault that was opened should be passed in as a reference
@@ -28,6 +32,7 @@ pub contract VaultService {
     // allow deposits, withdraws, and transfers of a vault
     // to other accounts
     pub fun deposit(vault: @Vault) {
+      VaultService.updateVaultAddress(uuid: vault.uuid, address: self.owner?.address)
       let oldVault <- self.vaults[vault.uuid] <- vault
       destroy oldVault
     }
@@ -62,6 +67,11 @@ pub contract VaultService {
 
     // Thumbnail for the vault
     pub let thumbnail: String
+
+    // A salt used to attach to the submitted password that is used to open
+    // the vault. This salt should be used to generate a hash of the password
+    // and the salt, and the hash should be compared to the control string
+    pub let passwordSalt: String
 
     // The control string is used to verify if a user has access to a vault.
     // It is intended to be a hash of the vault's ID combined with the secret
@@ -109,9 +119,10 @@ pub contract VaultService {
       )
     }
 
-    init(description: String, thumbnail: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?) {
+    init(description: String, thumbnail: String, passwordSalt: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?) {
       self.id = self.uuid
       self.description = description
+      self.passwordSalt = passwordSalt
       self.thumbnail = thumbnail
       self.hashControl = hashControl
       self.hashAlgorithm = hashAlgorithm
@@ -127,10 +138,11 @@ pub contract VaultService {
   }
 
   // Public method to create a vault
-  pub fun createVault(description: String, thumbnail: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?): @Vault {
+  pub fun createVault(description: String, thumbnail: String, passwordSalt: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?, action: Capability<&{VaultAction}>?): @Vault {
     return <- create Vault(
       description: description,
       thumbnail: thumbnail,
+      passwordSalt: passwordSalt,
       hashControl: hashControl,
       hashAlgorithm: hashAlgorithm,
       encryptedMessage: encryptedMessage,

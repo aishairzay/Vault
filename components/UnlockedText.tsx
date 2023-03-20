@@ -12,11 +12,11 @@ const styles = StyleSheet.create({
     }
 });
 
-export default function UnlockedText() {
+export default function UnlockedText({ text }: { text: string }) {
     return (
         <>
             <ParagraphText text="It seems there is a note with a message inside" />
-            <Text style={styles.text}>Join the secret discord https://discord.gg/abc123</Text>
+            <Text style={styles.text}>{text}</Text>
         </>
     )
 }

@@ -4,7 +4,7 @@ import React from 'react';
 const styles = StyleSheet.create({
     paragraph: {
         color: 'white',
-        fontSize: 12,
+        fontSize: 16,
         marginTop: 32,
         textAlign: "center",
         marginHorizontal: 32

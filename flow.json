@@ -33,16 +33,26 @@
 	},
 	"accounts": {
 		"default": {
-			"address": "0f7025fa05b578e3",
-			"key": "53170fc820cab4ff2c040ff93d28ab929670daf5a532a85de87682e276b2720b"
+			"address": "f3fcd2c1a78f5eee",
+			"key": "ef3db01ab0ebcc7323f5aafab730a2a32e655c9ba81cdc95c98d852d3a4cf7da"
 		},
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
 			"key": "aca7bcca2c7925e5aae15cc5d05eafe6f9cee203568b1dbec8bb3352b0445743"
 		},
 		"testnet-account": {
-			"address": "afbe0473d4f45e37",
-			"key": "$VAULT_TESTNET_KEY"
+			"address": "bbbeb7f62d6d47dd",
+			"key": {
+				"type": "file",
+				"location": "testnet-account.pkey"
+			}
+		},
+		"testnet-test-account": {
+			"address": "a7170526ddb5bdd2",
+			"key": {
+				"type": "file",
+				"location": "testnet-test-account.pkey"
+			}
 		}
 	},
 	"deployments": {

@@ -22,20 +22,25 @@ const styles = StyleSheet.create({
     },
 });
 
-export default function LockedContent() {
+export default function LockedContent({ vault, submitPassword }: { vault: any, submitPassword: (password: string) => void}) {
+    const [password, setPassword] = React.useState<string>('');
     return (
         <>
             <ParagraphText text="There's a note on the vault..." />
-            <ParagraphText text="They come out at nightwithout being called,
-                And are lost in the day without being stolen" />
-             <ParagraphText text="And there seems to be a keypad..." />
+            <ParagraphText text={vault.description} />
+            <ParagraphText text="And there seems to be a keypad..." />
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
                     placeholderTextColor="gray"
+                    onChangeText={(text) => { 
+                        setPassword(text);
+                    }}
                 />
-                <Text style={{ position: 'absolute', right: 10, top: 13, color: 'green' }}>Enter</Text>
+                <Text onPress={() => {
+                    submitPassword(password);
+                }} style={{ position: 'absolute', right: 10, top: 13, color: 'green' }}>Enter</Text>
             </View>
         </>
     )
