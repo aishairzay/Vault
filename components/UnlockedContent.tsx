@@ -17,14 +17,14 @@ export default function UnlockedContent({ answer, vault}: { answer: string, vaul
 
     if (loading) {
         return <>
-            <ParagraphText text="The vault door swung wide open!" />
+            <ParagraphText text="The vault door swung wide open!" style={{ fontWeight: 'bold' }} />
             <ParagraphText text="Loading..." />
         </>
     }
 
     return (
         <>
-            <ParagraphText text="The vault door swung wide open!" />
+            <ParagraphText text="The vault door swung wide open!" style={{ fontWeight: 'bold' }} />
             <UnlockedText text={unencryptedMessage} />
             {false && <UnlockedClaim />}
         </>

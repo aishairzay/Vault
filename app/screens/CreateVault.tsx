@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import React from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../root';
@@ -50,11 +50,21 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
         marginTop: 10
     },
+    largeInput: {
+        backgroundColor: 'white',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        height: 100,
+        width: 100,
+        textAlign: 'left',
+        textAlignVertical: 'center',
+        marginTop: 10
+    },
     headerText: {
         color: 'white',
         marginHorizontal: 5,
         marginBottom: 5,
-        marginTop: 48,
+        marginTop: 32,
         fontSize: 16
     },
     square: {
@@ -65,6 +75,8 @@ const styles = StyleSheet.create({
     },
     disabledOption: {
         opacity: 0.4,
+        borderRadius: 4,
+        padding: 4
     },
     disabledText: {
         color: 'lightgray',
@@ -113,21 +125,27 @@ export default function CreateVault({ navigation }: Props) {
             <Text style={styles.headerText}>What's in the vault?</Text>
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <View style={{ marginRight: 10, ...styles.selectedOption }}>
-                    <View style={styles.square} />
+                    <Image source={require('../../assets/images/secretmessage.png')} style={{ width: 100, height: 100 }} />
                     <Text style={styles.imageText}>A Secret Message</Text>
                 </View>
                 <View style={{ marginRight: 10, ...styles.disabledOption}}>
-                    <Image source={require('../../assets/images/kitty.png')} style={{ width: 100, height: 100 }} />
+                <Image source={require('../../assets/images/kitty.png')} style={{ width: 100, height: 100 }} />
                     <Text style={[styles.imageText, styles.disabledText]}>An NFT</Text>
                 </View>
                 <View style={styles.disabledOption}>
-                    <View style={styles.square} />
+                    <Image source={require('../../assets/images/flow.png')} style={{ width: 100, height: 100 }} />
                     <Text style={[styles.imageText, styles.disabledText]}>
-                        Custon on- {"\n"}
+                        Custom on- {"\n"}
                         chain Action
                     </Text>
                 </View>
             </View>
+            <KeyboardAvoidingView behavior="position" style={{ paddingLeft: 80, width: '100%' }}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter the secret message"
+                />
+            </KeyboardAvoidingView>
             <VaultButton text="Create Vault" />
         </View>
     );

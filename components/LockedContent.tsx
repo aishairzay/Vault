@@ -27,7 +27,7 @@ export default function LockedContent({ vault, submitPassword }: { vault: any, s
     return (
         <>
             <ParagraphText text="There's a note on the vault..." />
-            <ParagraphText text={vault.description} />
+            <ParagraphText style={{fontStyle: 'italic', fontWeight: 'bold'}} text={vault.description} />
             <ParagraphText text="And there seems to be a keypad..." />
             <View style={styles.inputContainer}>
                 <TextInput

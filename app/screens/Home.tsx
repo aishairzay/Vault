@@ -9,6 +9,8 @@ import VaultButton from '../../components/VaultButton';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingLeft: 16,
+    paddingRight: 16,
     backgroundColor: 'black',
     alignItems: 'center', // Add alignItems center
   },
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   headerText: {
-    color: 'green',
+    color: '#5db075',
     fontWeight: 'bold',
     fontSize: 24,
     paddingHorizontal: 5,

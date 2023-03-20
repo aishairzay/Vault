@@ -12,11 +12,12 @@ const styles = StyleSheet.create({
 });
 
 type VaultButtonProps = {
-    text: string
+    text: string,
+    style: any
 }
 
-export default function ParagraphText({ text }: VaultButtonProps) {
+export default function ParagraphText({ text, style }: VaultButtonProps) {
     return (
-        <Text style={styles.paragraph}>{text}</Text>
+        <Text style={{...styles.paragraph, ...style}}>{text}</Text>
     )
 }

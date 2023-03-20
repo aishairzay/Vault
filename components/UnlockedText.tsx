@@ -8,7 +8,8 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginTop: 32,
         textAlign: "center",
-        marginHorizontal: 32
+        marginHorizontal: 32,
+        fontStyle: 'italic',
     }
 });
 

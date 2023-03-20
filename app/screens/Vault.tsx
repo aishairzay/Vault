@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
         textShadowRadius: 5,
     },
     unlockedText: {
-        color: 'green',
+        color: '#00FF00',
         fontSize: 24,
         fontWeight: 'bold',
         textShadowColor: 'black',

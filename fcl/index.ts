@@ -19,7 +19,7 @@ export const getVaultByVaultID = async (vaultID: String) => {
       }
     `,
     args: (arg, t) => [
-      arg(parseInt(vaultID.toString()), t.UInt64)
+      arg(parseInt(vaultID.toString()).toString(), t.UInt64)
     ],
   });
   return vault;
