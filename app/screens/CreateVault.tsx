@@ -4,6 +4,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../root';
 import { RouteProp } from '@react-navigation/native';
 import VaultButton from '../../components/VaultButton';
+import * as secp from '@noble/secp256k1';
 
 const styles = StyleSheet.create({
     container: {
@@ -146,7 +147,10 @@ export default function CreateVault({ navigation }: Props) {
                     placeholder="Enter the secret message"
                 />
             </KeyboardAvoidingView>
-            <VaultButton text="Create Vault" />
+            <VaultButton onPress={() => {
+                const privkey = secp.utils.randomPrivateKey();
+                console.log('priv key is', privkey)
+            }} text="Create Vault" />
         </View>
     );
 }
