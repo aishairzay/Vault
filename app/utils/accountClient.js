@@ -1,4 +1,5 @@
 import axios from "axios";
+import { LILICO_TOKEN } from '@env';
 import * as secp from '@noble/secp256k1';
 
 const LILICO_API = "https://openapi.lilico.org/v1/address";
@@ -6,15 +7,10 @@ const LILICO_API = "https://openapi.lilico.org/v1/address";
 const FLOWSCAN_API =
     "https://query.flowgraph.co/?token=5a477c43abe4ded25f1e8cc778a34911134e0590";
 
-export interface Account {
-    address: string;
-    publicKey: Uint8Array;
-    privateKey: Uint8Array;
-}
 
 export const createAccount = async (
-    network: string = "testnet"
-): Promise<Account> => {
+    network = "testnet"
+) => {
     let lilicoEndpoint;
     let flowScanEndpoint;
     if (network === "testnet") {
@@ -41,7 +37,7 @@ export const createAccount = async (
             {
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8",
-                    Authorization: process.env.LILICO_TOKEN,
+                    Authorization: LILICO_TOKEN,
                 },
             }
         );
@@ -82,7 +78,7 @@ export const createAccount = async (
             }
             accountAddress =
                 flowScanResponse.data.data.checkTransaction.transaction.events.edges.filter(
-                    (e: any) => e.node.type.id.includes("AccountCreated")
+                    (e) => e.node.type.id.includes("AccountCreated")
                 )[0].node.fields[0].value;
         } while (count++ < 10 && !accountAddress);
 
@@ -101,7 +97,7 @@ export const createAccount = async (
     }
 };
 
-function buf2hex(buffer: Uint8Array) { // buffer is an ArrayBuffer
+function buf2hex(buffer) { // buffer is an ArrayBuffer
     return [...new Uint8Array(buffer)]
         .map(x => x.toString(16).padStart(2, '0'))
         .join('').replace(/^04/, "");
