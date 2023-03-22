@@ -1,9 +1,11 @@
 import { ec as EC } from "elliptic";
 import { SHA3 } from "sha3";
 import { Account } from "../account/Accounts";
+import { Buffer } from "buffer";
+
 const fcl = require("@onflow/fcl");
 
-const ec = new EC("p256");
+const ec = new EC("secp256k1");
 
 const hashMsgHex = (msgHex: string) => {
     const sha = new SHA3(256);
@@ -12,7 +14,7 @@ const hashMsgHex = (msgHex: string) => {
 };
 
 const sign = (privateKey: string, msgHex: string) => {
-    const key = ec.keyFromPrivate(Buffer.from(privateKey, "hex"));
+    const key = ec.keyFromPrivate(privateKey);
     const sig = key.sign(hashMsgHex(msgHex));
     const n = 32;
     const r = sig.r.toArrayLike(Buffer, "be", n);
@@ -44,10 +46,10 @@ const authorizationFunction = (
 
 export class FlowHelper {
     fcl: any;
-    account: Account;
+    account: Account | undefined;
 
     // If only running scripts, you can send in an empty account
-    constructor(account: Account, network = "testnet") {
+    constructor(account: Account | undefined, network = "testnet") {
         this.fcl = fcl;
         this.account = account;
         const config = this.fcl.config();
@@ -61,27 +63,30 @@ export class FlowHelper {
         config.put("flow.network", network);
     }
 
-    async runScript(scriptCode: string, scriptArgs: any[] = []): Promise<any> {
+    async runScript(
+        scriptCode: string,
+        scriptArgs: any = (arg: any, t: any) => []
+    ): Promise<any> {
         return await this.fcl.query({
             cadence: scriptCode,
-            args: (_arg: any, _t: any) => scriptArgs,
+            args: scriptArgs,
         });
     }
 
     async startTransaction(
         transactionCode: string,
-        transactionArgs: any[] = []
+        transactionArgs: any = (arg: any, t: any) => []
     ): Promise<any> {
         // Will always use the first key for now
         const keyId = 0;
         const authorization = authorizationFunction(
-            this.account.address,
+            this.account?.address,
             keyId,
-            this.account.privateKey
+            this.account?.privateKey
         );
         const response = await this.fcl.mutate({
             cadence: transactionCode,
-            args: (_arg: any, _t: any) => transactionArgs,
+            args: transactionArgs,
             authorizations: [authorization],
             proposer: authorization,
             payer: authorization,

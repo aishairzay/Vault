@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as secp from "@noble/secp256k1";
+import base64 from "react-native-base64";
 
 const LILICO_API = "https://openapi.lilico.org/v1/address";
 // Public token in the URL
@@ -30,6 +31,7 @@ export const createAccount = async (
     const publicKey = buf2hex(secp.getPublicKey(privateKey));
 
     try {
+        console.log("Calling Lilico to create account.");
         const lilicoResponse = await axios.post(
             lilicoEndpoint,
             {
@@ -46,6 +48,7 @@ export const createAccount = async (
             }
         );
         const txId = lilicoResponse.data.data.txId;
+        console.log("Tx returned from Lilico, getting the account ID.");
         if (!txId) {
             throw new Error("Was not able to get a reply from Lilico");
         }
@@ -67,7 +70,7 @@ export const createAccount = async (
                 (e: any) => e.type.includes("AccountCreated")
             )[0].payload;
             let accountObject: any = JSON.parse(
-                Buffer.from(base64AccountAddress, "base64").toString("utf8")
+                base64.decode(base64AccountAddress)
             );
             accountAddress = accountObject.value.fields[0].value.value;
         } while (count++ < 10 && !accountAddress);
@@ -81,8 +84,8 @@ export const createAccount = async (
             publicKey: publicKey,
             privateKey: privateKey,
         };
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        console.error(err.stack);
         throw err;
     }
 };
