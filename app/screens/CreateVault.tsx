@@ -4,6 +4,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../root';
 import { RouteProp } from '@react-navigation/native';
 import VaultButton from '../../components/VaultButton';
+import { getFlowAccount } from '../utils/getFlowAccount';
 
 const styles = StyleSheet.create({
     container: {
@@ -94,6 +95,11 @@ type Props = {
 
 export default function CreateVault({ navigation }: Props) {
 
+    const createVault = async () => {
+        const res = await getFlowAccount();
+        console.log(res);
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.centerContainer}>
@@ -146,7 +152,7 @@ export default function CreateVault({ navigation }: Props) {
                     placeholder="Enter the secret message"
                 />
             </KeyboardAvoidingView>
-            <VaultButton text="Create Vault" />
+            <VaultButton onPress={createVault} text="Create Vault" />
         </View>
     );
 }

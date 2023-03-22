@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
 
 type VaultButtonProps = {
     text: string
-    onPress?: (event: GestureResponderEvent) => void | null
+    onPress?: ((event: GestureResponderEvent) => void) | ((event: GestureResponderEvent) => Promise<void>) | undefined
 }
 
 export default function VaultButton({ text, onPress }: VaultButtonProps) {

@@ -20,3 +20,5 @@ testnet-test-account.pkey
 testnet-account.pkey
 testnet-test-account.pkey
 VaultServiceAccount.pkey
+
+.env*
