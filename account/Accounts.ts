@@ -1,10 +1,11 @@
 import axios from "axios";
-import { ec as EC } from "elliptic";
+import * as secp from "@noble/secp256k1";
+import base64 from "react-native-base64";
 
 const LILICO_API = "https://openapi.lilico.org/v1/address";
 // Public token in the URL
-const FLOWSCAN_API =
-    "https://query.flowgraph.co/?token=5a477c43abe4ded25f1e8cc778a34911134e0590";
+const FLOW_TRANSACTION_API =
+    "https://rest-mainnet.onflow.org/v1/transaction_results/";
 
 export interface Account {
     address: string;
@@ -16,27 +17,26 @@ export const createAccount = async (
     network: string = "testnet"
 ): Promise<Account> => {
     let lilicoEndpoint;
-    let flowScanEndpoint;
+    let flowTxEndpoint;
     if (network === "testnet") {
         lilicoEndpoint = `${LILICO_API}/testnet`;
-        flowScanEndpoint = FLOWSCAN_API.replace("query.", "query.testnet.");
+        flowTxEndpoint = FLOW_TRANSACTION_API.replace("mainnet", "testnet");
     } else if (network === "mainnet") {
         lilicoEndpoint = LILICO_API;
-        flowScanEndpoint = FLOWSCAN_API;
+        flowTxEndpoint = FLOW_TRANSACTION_API;
     } else {
         throw new Error(`Invalid network ${network}}`);
     }
-    const ec = new EC("p256");
-    const keyPair = ec.genKeyPair();
-    const publicKey = keyPair.getPublic("hex").replace(/^04/, "");
-    const privateKey = keyPair.getPrivate("hex");
+    const privateKey = buf2hex(secp.utils.randomPrivateKey());
+    const publicKey = buf2hex(secp.getPublicKey(privateKey));
 
     try {
+        console.log("Calling Lilico to create account.");
         const lilicoResponse = await axios.post(
             lilicoEndpoint,
             {
                 publicKey: publicKey,
-                signatureAlgorithm: "ECDSA_P256",
+                signatureAlgorithm: "ECDSA_secp256k1",
                 hashAlgorithm: "SHA3_256",
                 weight: 1000,
             },
@@ -48,6 +48,7 @@ export const createAccount = async (
             }
         );
         const txId = lilicoResponse.data.data.txId;
+        console.log("Tx returned from Lilico, getting the account ID.");
         if (!txId) {
             throw new Error("Was not able to get a reply from Lilico");
         }
@@ -55,41 +56,27 @@ export const createAccount = async (
         let accountAddress;
         let count = 0;
         do {
-            const flowScanResponse = await axios.post(
-                flowScanEndpoint,
-                {
-                    operationName: "TransactionEventsSectionQuery",
-                    variables: {
-                        id: txId,
-                        first: 20,
-                    },
-                    query: "query TransactionEventsSectionQuery($id: ID!, $eventTypeFilter: ID, $first: Int, $after: ID) {\n  checkTransaction(id: $id) {\n    transaction {\n      eventTypes {\n        id\n        __typename\n      }\n      eventCount\n      events(first: $first, typeId: $eventTypeFilter, after: $after) {\n        edges {\n          node {\n            index\n            type {\n              id\n              __typename\n            }\n            fields\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
+            const flowTxResponse = await axios.get(flowTxEndpoint + txId, {
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8",
                 },
-                {
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    },
-                }
-            );
-            if (
-                flowScanResponse.data.errors &&
-                flowScanResponse.data.errors.length > 0 &&
-                flowScanResponse.data.errors[0].message.includes(
-                    "cannot get transaction info"
-                )
-            ) {
+            });
+            if (flowTxResponse.data.status !== "Sealed") {
                 // Tx not done, sleep
                 await new Promise((r) => setTimeout(r, 2000));
                 continue;
             }
-            accountAddress =
-                flowScanResponse.data.data.checkTransaction.transaction.events.edges.filter(
-                    (e: any) => e.node.type.id.includes("AccountCreated")
-                )[0].node.fields[0].value;
+            let base64AccountAddress = flowTxResponse.data.events.filter(
+                (e: any) => e.type.includes("AccountCreated")
+            )[0].payload;
+            let accountObject: any = JSON.parse(
+                base64.decode(base64AccountAddress)
+            );
+            accountAddress = accountObject.value.fields[0].value.value;
         } while (count++ < 10 && !accountAddress);
 
         if (!accountAddress) {
-            throw new Error("Was not able to get a reply from FlowScan");
+            throw new Error("Was not able to get a reply from Flow");
         }
 
         return {
@@ -97,8 +84,16 @@ export const createAccount = async (
             publicKey: publicKey,
             privateKey: privateKey,
         };
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        console.error(err.stack);
         throw err;
     }
 };
+
+function buf2hex(buffer: Uint8Array) {
+    // buffer is an ArrayBuffer
+    return [...new Uint8Array(buffer)]
+        .map((x) => x.toString(16).padStart(2, "0"))
+        .join("")
+        .replace(/^04/, "");
+}
