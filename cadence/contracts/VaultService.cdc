@@ -1,6 +1,8 @@
 import "MetadataViews"
 
 pub contract VaultService {
+  // Events
+  pub event VaultCreated(id: UInt64, description: String)
 
   // To make vaults globally accessible, we wire up the vault collection
   // resource with a global map here that can be used to access what account
@@ -130,6 +132,8 @@ pub contract VaultService {
       self.encryptionAlgorithm = encryptionAlgorithm
       self.derivedPublicKey = derivedPublicKey
       self.action = action
+
+      emit VaultCreated(id: self.id, description: self.description)
     }
   }
 
@@ -156,3 +160,4 @@ pub contract VaultService {
     self.vaultAddresses = {}
   }
 }
+ 

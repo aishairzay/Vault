@@ -183,7 +183,10 @@ export default function CreateVault({ navigation }: Props) {
                 arg("none", t.String),
             ]
         );
-        // TODO: read events from response and redirect user to the newly created vault.
+        const vaultEvent = response.events.find((e: any) =>
+            e.type.includes("VaultCreated")
+        );
+        navigation.navigate("Vault", { vaultID: vaultEvent.data.id });
     };
 
     return (
