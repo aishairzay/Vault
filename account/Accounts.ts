@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as secp from "@noble/secp256k1";
 import base64 from "react-native-base64";
+import { buf2hex } from "../app/crypto/utils";
 
 const LILICO_API = "https://openapi.lilico.org/v1/address";
 // Public token in the URL
@@ -89,11 +90,3 @@ export const createAccount = async (
         throw err;
     }
 };
-
-function buf2hex(buffer: Uint8Array) {
-    // buffer is an ArrayBuffer
-    return [...new Uint8Array(buffer)]
-        .map((x) => x.toString(16).padStart(2, "0"))
-        .join("")
-        .replace(/^04/, "");
-}
