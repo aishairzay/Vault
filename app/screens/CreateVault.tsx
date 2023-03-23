@@ -18,6 +18,7 @@ import { FlowHelper } from "../../flow/FlowHelper";
 import * as Crypto from "expo-crypto";
 import {
     buf2hex,
+    createHash,
     getHashControl,
     symmetricEncryptMessage,
 } from "../crypto/utils";
@@ -139,10 +140,11 @@ export default function CreateVault({ navigation }: Props) {
         const account = await createOrGetFlowAccount();
         const flowHelper = new FlowHelper(account);
         const salt = buf2hex(await Crypto.getRandomBytesAsync(8));
-        const hashControl = await getHashControl(salt, input.riddleAnswer);
+        const key = `${salt}:${input.riddleAnswer}`;
+        const hashControl = await createHash(key, "SHA256");
         const encryptedMessage = symmetricEncryptMessage(
             input.riddleSecret,
-            salt,
+            key,
             "AES"
         );
         const response = await flowHelper.startTransaction(

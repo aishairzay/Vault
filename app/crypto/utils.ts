@@ -40,11 +40,6 @@ export const buf2hex = (buffer: Uint8Array) => {
         .replace(/^04/, "");
 };
 
-export const getHashControl = async (salt: string, secret: string) => {
-    const key = `${salt}:${secret}`;
-    return await createHash(key, "SHA256");
-};
-
 /*
 to be used during creation of a new vault
 or when testing
