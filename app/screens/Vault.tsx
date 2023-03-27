@@ -55,6 +55,13 @@ const styles = StyleSheet.create({
         textShadowColor: "black",
         textShadowRadius: 5,
     },
+    missingText: {
+        color: "#00ffff",
+        fontSize: 24,
+        fontWeight: "bold",
+        textShadowColor: "black",
+        textShadowRadius: 5,
+    },
     paragraph: {
         color: "white",
         fontSize: 12,
@@ -96,26 +103,33 @@ export default function Vault({ route }: Props) {
     const [vault, setVault] = React.useState<any | null>(null);
     const [password, setPassword] = React.useState<string>("");
     const [isLocked, setIsLocked] = React.useState<boolean>(true);
+    const [error, setError] = React.useState<string | null>(null);
     const vaultID = route.params.vaultID;
 
     useEffect(() => {
         const getVault = async () => {
             const flowHelper = new FlowHelper(undefined);
-            const vault = await flowHelper.runScript(
-                `
-import VaultService from 0xbbbeb7f62d6d47dd
+            let vault = null
+            try {
+                vault = await flowHelper.runScript(
+                    `
+    import VaultService from 0xbbbeb7f62d6d47dd
 
-pub fun main(vaultID: UInt64):AnyStruct {
-    let address = VaultService.vaultAddresses[vaultID] ?? panic("No address found")
-    let vaultCollection = getAccount(address).getCapability<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection).borrow()
-        ?? panic("Could not borrow capability from public collection")
-    let vault = vaultCollection.borrowVault(uuid: vaultID)
-    return vault
-}`,
-                (arg: any, t: any) => [
-                    arg(parseInt(vaultID.toString()).toString(), t.UInt64),
-                ]
-            );
+    pub fun main(vaultID: UInt64):AnyStruct {
+        let address = VaultService.vaultAddresses[vaultID] ?? panic("No address found")
+        let vaultCollection = getAccount(address).getCapability<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection).borrow()
+            ?? panic("Could not borrow capability from public collection")
+        let vault = vaultCollection.borrowVault(uuid: vaultID)
+        return vault
+    }`,
+                    (arg: any, t: any) => [
+                        arg(parseInt(vaultID.toString()).toString(), t.UInt64),
+                    ]
+                );
+            } catch(e) {
+                console.log('Failed to retrieve given vault: ', e);
+                setError(`We could not find this vault.\n\nMake sure you have the correct Vault ID`)
+            }
             setVault(vault);
         };
         getVault();
@@ -140,6 +154,24 @@ pub fun main(vaultID: UInt64):AnyStruct {
 
     const insets = useSafeAreaInsets();
 
+    let content = <Text style={styles.paragraph}>Loading...</Text>
+    if (error !== null) {
+        content = <Text style={{ ...styles.text, paddingTop: 48, textAlign: 'center' }}>{error}</Text>
+    } else if (vault !== null) {
+        content = (
+            <KeyboardAvoidingView
+                behavior="padding"
+                keyboardVerticalOffset={120}
+            >
+                {isLocked ? (
+                    <LockedContent vault={vault} submitPassword={setPassword} />
+                ) : (
+                    <UnlockedContent answer={password} vault={vault} />
+                )}
+            </KeyboardAvoidingView>
+        )
+    }
+
     return (
         <View
             style={[
@@ -159,27 +191,20 @@ pub fun main(vaultID: UInt64):AnyStruct {
             <View style={styles.grayBackground} />
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Vault #{vaultID}</Text>
-                {isLocked === true ? (
+                {error !== null && (
+                    <Text style={styles.missingText}>MISSING</Text>
+                )}
+                {error === null && (isLocked === true ? (
                     <Text style={styles.lockedText}>LOCKED</Text>
                 ) : (
                     <Text style={styles.unlockedText}>UNLOCKED</Text>
-                )}
+                ))}
             </View>
             <Image
                 source={require("../../assets/images/vault.png")}
                 style={{ alignSelf: "center", marginTop: 30 }}
             />
-            {vault === null ?? <Text style={styles.paragraph}>Loading...</Text>}
-            <KeyboardAvoidingView
-                behavior="padding"
-                keyboardVerticalOffset={120}
-            >
-                {vault !== null && isLocked ? (
-                    <LockedContent vault={vault} submitPassword={setPassword} />
-                ) : (
-                    <UnlockedContent answer={password} vault={vault} />
-                )}
-            </KeyboardAvoidingView>
+            {content}
         </View>
     );
 }

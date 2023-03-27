@@ -86,7 +86,7 @@ export const createAccount = async (
             privateKey: privateKey,
         };
     } catch (err: any) {
-        console.error(err.stack);
+        console.error(err);
         throw err;
     }
 };

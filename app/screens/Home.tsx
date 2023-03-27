@@ -5,7 +5,6 @@ import { RootStackParamList } from '../root';
 import { RouteProp } from '@react-navigation/native';
 import VaultButton from '../../components/VaultButton';
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     color: 'black',
-    fontWeight: 'bold',
+    fontWeight: '900',
     textShadowColor: 'white',
     textShadowRadius: 5,
     fontSize: 32,

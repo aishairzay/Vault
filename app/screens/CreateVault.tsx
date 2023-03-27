@@ -8,7 +8,7 @@ import {
     Alert,
     KeyboardAvoidingView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
@@ -19,9 +19,9 @@ import * as Crypto from "expo-crypto";
 import {
     buf2hex,
     createHash,
-    getHashControl,
     symmetricEncryptMessage,
 } from "../crypto/utils";
+import createToast from '../utils/toast'
 
 const styles = StyleSheet.create({
     container: {
@@ -88,6 +88,14 @@ const styles = StyleSheet.create({
         marginTop: 32,
         fontSize: 16,
     },
+    creationStatusText: {
+        color: "white",
+        marginHorizontal: 5,
+        marginBottom: 5,
+        marginTop: 100,
+        fontSize: 32,
+        textAlign: "center"
+    },
     square: {
         backgroundColor: "white",
         borderRadius: 10,
@@ -116,80 +124,110 @@ type Props = {
 };
 
 export default function CreateVault({ navigation }: Props) {
+    
     const [type, setType] = useState("riddle");
     const [input, setInput] = useState({} as any);
+    const [creationStatus, setCreationStatus] = useState<string|null>(null);
 
     const createVault = async () => {
-        if (type === "riddle") {
-            if (
-                !input.riddleAnswer &&
-                !input.riddleSecret &&
-                !input.description
-            ) {
-                Alert.alert(
-                    "Invalid Input",
-                    "Please fill out all of the fields.",
-                    [],
-                    {
-                        cancelable: true,
-                    }
-                );
-                return;
+        try {
+            if (type === "riddle") {
+                if (
+                    !input.riddleAnswer &&
+                    !input.riddleSecret &&
+                    !input.description
+                ) {
+                    Alert.alert(
+                        "Invalid Input",
+                        "Please fill out all of the fields.",
+                        [],
+                        {
+                            cancelable: true,
+                        }
+                    );
+                    return;
+                }
             }
-        }
-        const account = await createOrGetFlowAccount();
-        const flowHelper = new FlowHelper(account);
-        const salt = buf2hex(await Crypto.getRandomBytesAsync(8));
-        const key = `${salt}:${input.riddleAnswer}`;
-        const hashControl = await createHash(key, "SHA256");
-        const encryptedMessage = symmetricEncryptMessage(
-            input.riddleSecret,
-            key,
-            "AES"
-        );
-        const response = await flowHelper.startTransaction(
-            `
-        import VaultService from 0xbbbeb7f62d6d47dd
-        
-        transaction(description: String, thumbnail: String, passwordSalt: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?) {
-          let vaultCollection: &VaultService.VaultCollection
-        
-          prepare(signer: AuthAccount) {
-            var vaultCollectionCap = signer.borrow<&VaultService.VaultCollection>(from: /storage/VaultCollection)
-            if (vaultCollectionCap == nil) {
-              let vaultCollection <- VaultService.createVaultCollection()
-              signer.save(<-vaultCollection, to: /storage/VaultCollection)
-              vaultCollectionCap = signer.borrow<&VaultService.VaultCollection>(from: /storage/VaultCollection)
-              self.vaultCollection = vaultCollectionCap!
-            } else {
-              self.vaultCollection = vaultCollectionCap!
-            }
-            signer.link<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection, target: /storage/VaultCollection)
-          }
-        
-          execute {
-            let vault <- VaultService.createVault(description: description, thumbnail: thumbnail, passwordSalt: passwordSalt, hashControl: hashControl, hashAlgorithm: hashAlgorithm, encryptedMessage: encryptedMessage, encryptionAlgorithm: encryptionAlgorithm, derivedPublicKey: derivedPublicKey, action: nil)
-            self.vaultCollection.deposit(vault: <-vault)
-          }
-        }
-        `,
+            setCreationStatus('Finding an assistant to help you...')
+            const account = await createOrGetFlowAccount();
+            console.log('Retrieved account with address', account.address)
 
-            (arg: any, t: any) => [
-                arg(input.description, t.String),
-                arg("none", t.String),
-                arg(salt, t.String),
-                arg(hashControl, t.String),
-                arg("SHA256", t.String),
-                arg(encryptedMessage, t.String),
-                arg("AES", t.String),
-                arg("none", t.String),
-            ]
-        );
-        const vaultEvent = response.events.find((e: any) =>
-            e.type.includes("VaultCreated")
-        );
-        navigation.navigate("Vault", { vaultID: vaultEvent.data.id });
+            setCreationStatus('Finding an empty vault to lock away your message...')
+            const flowHelper = new FlowHelper(account);
+            const salt = buf2hex(await Crypto.getRandomBytesAsync(8));
+            const key = `${salt}:${input.riddleAnswer}`;
+            const hashControl = await createHash(key, "SHA256");
+            const encryptedMessage = symmetricEncryptMessage(
+                input.riddleSecret,
+                key,
+                "AES"
+            );
+
+            console.log('Running tx to create vault')
+            const response = await flowHelper.startTransaction(
+                `
+            import VaultService from 0xbbbeb7f62d6d47dd
+            
+            transaction(description: String, thumbnail: String, passwordSalt: String, hashControl: String, hashAlgorithm: String, encryptedMessage: String?, encryptionAlgorithm: String?, derivedPublicKey: String?) {
+            let vaultCollection: &VaultService.VaultCollection
+            
+            prepare(signer: AuthAccount) {
+                var vaultCollectionCap = signer.borrow<&VaultService.VaultCollection>(from: /storage/VaultCollection)
+                if (vaultCollectionCap == nil) {
+                let vaultCollection <- VaultService.createVaultCollection()
+                signer.save(<-vaultCollection, to: /storage/VaultCollection)
+                vaultCollectionCap = signer.borrow<&VaultService.VaultCollection>(from: /storage/VaultCollection)
+                self.vaultCollection = vaultCollectionCap!
+                } else {
+                self.vaultCollection = vaultCollectionCap!
+                }
+                signer.link<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection, target: /storage/VaultCollection)
+            }
+            
+            execute {
+                let vault <- VaultService.createVault(description: description, thumbnail: thumbnail, passwordSalt: passwordSalt, hashControl: hashControl, hashAlgorithm: hashAlgorithm, encryptedMessage: encryptedMessage, encryptionAlgorithm: encryptionAlgorithm, derivedPublicKey: derivedPublicKey, action: nil)
+                self.vaultCollection.deposit(vault: <-vault)
+            }
+            }
+            `,
+
+                (arg: any, t: any) => [
+                    arg(input.description, t.String),
+                    arg("none", t.String),
+                    arg(salt, t.String),
+                    arg(hashControl, t.String),
+                    arg("SHA256", t.String),
+                    arg(encryptedMessage, t.String),
+                    arg("AES", t.String),
+                    arg("none", t.String),
+                ]
+            );
+            const vaultEvent = response.events.find((e: any) =>
+                e.type.includes("VaultCreated")
+            );
+            navigation.navigate("Vault", { vaultID: vaultEvent.data.id });
+        } catch (e) {
+            console.error(e);
+            setCreationStatus(null)
+            createToast("We ran into an error creating your vault. Maybe try again?")
+        }
     };
+
+    if (creationStatus) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.centerContainer}>
+                    <TouchableOpacity
+                        style={{ marginLeft: 20 }}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.text}>X</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.creationStatusText}>{creationStatus}</Text>
+                </View>
+            </View>
+        )
+    }
 
     return (
         <View style={styles.container}>
@@ -213,12 +251,14 @@ export default function CreateVault({ navigation }: Props) {
                     <Image source={require("../../assets/images/riddle.png")} />
                     <Text style={styles.imageText}>Solve a Riddle</Text>
                 </View>
-                <View style={styles.disabledOption}>
+                <TouchableOpacity style={styles.disabledOption} onPress={() => {
+                    createToast("This feature is not yet available.")
+                }}>
                     <Image source={require("../../assets/images/play.png")} />
                     <Text style={[styles.imageText, styles.disabledText]}>
                         Play a game
                     </Text>
-                </View>
+                </TouchableOpacity>
             </View>
             {type === "riddle" && (
                 <>
@@ -266,10 +306,13 @@ export default function CreateVault({ navigation }: Props) {
                                 A Secret Message
                             </Text>
                         </View>
-                        <View
+                        <TouchableOpacity 
                             style={{
                                 marginRight: 10,
                                 ...styles.disabledOption,
+                            }}
+                            onPress={() => {
+                                createToast("This feature is not yet available.")
                             }}
                         >
                             <Image
@@ -281,8 +324,16 @@ export default function CreateVault({ navigation }: Props) {
                             >
                                 An NFT
                             </Text>
-                        </View>
-                        <View style={styles.disabledOption}>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={{
+                                marginRight: 10,
+                                ...styles.disabledOption,
+                            }}
+                            onPress={() => {
+                                createToast("This feature is not yet available.")
+                            }}
+                        >
                             <Image
                                 source={require("../../assets/images/flow.png")}
                                 style={{ width: 100, height: 100 }}
@@ -293,7 +344,7 @@ export default function CreateVault({ navigation }: Props) {
                                 Custom on- {"\n"}
                                 chain Action
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                     <KeyboardAvoidingView
                         behavior="position"

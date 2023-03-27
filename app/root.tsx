@@ -5,6 +5,7 @@ import Home from './screens/Home';
 import Vault from './screens/Vault';
 import CreateVault from './screens/CreateVault';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -17,13 +18,11 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootLayout() {
   return (
-    <>
+    <RootSiblingParent>
       <RootLayoutNav />
-    </>
+    </RootSiblingParent>
   );
 }
-
-
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();

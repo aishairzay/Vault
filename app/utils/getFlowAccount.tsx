@@ -7,7 +7,7 @@ export async function createOrGetFlowAccount(): Promise<Account> {
     try {
         const value = await SecureStore.getItemAsync(KEY);
         if (value !== null && value !== undefined) {
-            console.log("Found existing account.");
+            console.log("Found existing account with address", JSON.parse(value).address);
             return JSON.parse(value);
         } else {
             console.log("Creating account.");
