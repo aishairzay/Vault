@@ -1,5 +1,6 @@
 import * as Crypto from "expo-crypto";
 import CryptoJS from "crypto-js";
+import * as secp from "@noble/secp256k1";
 
 export const createHash = async (
     pw: string,
@@ -21,6 +22,33 @@ export const symmetricDecryptMessage = (
     // return the decrypted message
     return CryptoJS.AES.decrypt(message, key).toString(CryptoJS.enc.Utf8);
 };
+
+export const deriveKey = async (
+    pw: string
+): Promise<{ privateKey: string, publicKey: string }> => {
+    // using the password, derive a key
+    // return the key
+    let hash = await createHash(pw, 'SHA256');
+    hash = hash + hash // we need more than the 32 bytes of the hash
+    // just double it for now
+
+    const privateKey = buf2hex(secp.utils.hashToPrivateKey(hash));
+    const publicKey = buf2hex(secp.getPublicKey(privateKey));
+
+    return {
+        privateKey: privateKey,
+        publicKey: publicKey,
+    }
+}
+
+export const sign = async (
+    message: string,
+    privateKey: string
+) => {
+    const signature = await secp.sign(message, privateKey);
+    const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+    return realSignature;
+}
 
 export const symmetricEncryptMessage = (
     message: string,

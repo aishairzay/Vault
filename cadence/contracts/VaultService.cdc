@@ -105,6 +105,17 @@ pub contract VaultService {
     // of who solved the riddle.
     access(self) let action: Capability<&{VaultAction}>?
 
+    pub fun executeAction: (signedData: String, message: String): Bool {
+      // verify that the provided signatures match up with the on-chain derived public key
+      // and through that, find the address that opened up the vault, and ensure that the
+      // ID mentioned in the signed data matches the current vault ID.
+      assert(self.action != nil, "An action must exist in order to run execute action")
+      assert(self.derivedPublicKey != nil, "A public key must exist in order to run execute action")
+
+      self.action!.borrow()!.execute(vault: &self, address: address, publicKey: self.derivedPublicKey!)
+      return true
+    }
+
     pub fun getViews(): [Type] {
       return [
         Type<MetadataViews.Display>()

@@ -19,9 +19,12 @@ import * as Crypto from "expo-crypto";
 import {
     buf2hex,
     createHash,
+    deriveKey,
     symmetricEncryptMessage,
 } from "../crypto/utils";
 import createToast from '../utils/toast'
+
+import * as secp from "@noble/secp256k1";
 
 const styles = StyleSheet.create({
     container: {
@@ -163,6 +166,13 @@ export default function CreateVault({ navigation }: Props) {
                 "AES"
             );
 
+            // The assymetic key uses a different delimiter (-) so that the
+            // hash that we're putting on-chain is not leaking the
+            // hash needed to generate the assymetric key
+            const asymmetricKey = `${salt}-${input.riddleAnswer}`;
+            const keyPair = await deriveKey(asymmetricKey)
+            const publicKey = keyPair.publicKey
+
             console.log('Running tx to create vault')
             const response = await flowHelper.startTransaction(
                 `
@@ -199,7 +209,7 @@ export default function CreateVault({ navigation }: Props) {
                     arg("SHA256", t.String),
                     arg(encryptedMessage, t.String),
                     arg("AES", t.String),
-                    arg("none", t.String),
+                    arg(publicKey, t.String),
                 ]
             );
             const vaultEvent = response.events.find((e: any) =>
@@ -209,7 +219,7 @@ export default function CreateVault({ navigation }: Props) {
         } catch (e) {
             console.error(e);
             setCreationStatus(null)
-            createToast("We ran into an error creating your vault. Maybe try again?")
+            createToast("We ran into an error creating your vault. Please try again later!")
         }
     };
 
