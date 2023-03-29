@@ -5,7 +5,9 @@ import {
     Image,
     StatusBar,
     KeyboardAvoidingView,
+    Share,
 } from "react-native";
+import { Button } from "react-native-elements";
 import React, { useEffect } from "react";
 import LockedContent from "../../components/LockedContent";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -106,10 +108,21 @@ export default function Vault({ route }: Props) {
     const [error, setError] = React.useState<string | null>(null);
     const vaultID = route.params.vaultID;
 
+    const onShare = async () => {
+        let message = `I locked away something in vault ${vaultID}, figure out how to open it to see what's inside!`;
+        if (!isLocked) {
+            message = `I solved vault ${vaultID}!`;
+        }
+        await Share.share({
+            message: message,
+            url: `https://moharsvault.gg/${vaultID}`,
+        });
+    };
+
     useEffect(() => {
         const getVault = async () => {
             const flowHelper = new FlowHelper(undefined);
-            let vault = null
+            let vault = null;
             try {
                 vault = await flowHelper.runScript(
                     `
@@ -126,9 +139,11 @@ export default function Vault({ route }: Props) {
                         arg(parseInt(vaultID.toString()).toString(), t.UInt64),
                     ]
                 );
-            } catch(e) {
-                console.log('Failed to retrieve given vault: ', e);
-                setError(`We could not find this vault.\n\nMake sure you have the correct Vault ID`)
+            } catch (e) {
+                console.log("Failed to retrieve given vault: ", e);
+                setError(
+                    `We could not find this vault.\n\nMake sure you have the correct Vault ID`
+                );
             }
             setVault(vault);
         };
@@ -154,9 +169,15 @@ export default function Vault({ route }: Props) {
 
     const insets = useSafeAreaInsets();
 
-    let content = <Text style={styles.paragraph}>Loading...</Text>
+    let content = <Text style={styles.paragraph}>Loading...</Text>;
     if (error !== null) {
-        content = <Text style={{ ...styles.text, paddingTop: 48, textAlign: 'center' }}>{error}</Text>
+        content = (
+            <Text
+                style={{ ...styles.text, paddingTop: 48, textAlign: "center" }}
+            >
+                {error}
+            </Text>
+        );
     } else if (vault !== null) {
         content = (
             <KeyboardAvoidingView
@@ -169,7 +190,7 @@ export default function Vault({ route }: Props) {
                     <UnlockedContent answer={password} vault={vault} />
                 )}
             </KeyboardAvoidingView>
-        )
+        );
     }
 
     return (
@@ -189,16 +210,36 @@ export default function Vault({ route }: Props) {
         >
             <StatusBar barStyle="dark-content" backgroundColor="#ecf0f1" />
             <View style={styles.grayBackground} />
+            <View
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    marginTop: 50,
+                    marginRight: 15,
+                }}
+            >
+                <Button
+                    icon={{
+                        name: "share",
+                        size: 25,
+                        color: "white",
+                    }}
+                    onPress={onShare}
+                />
+            </View>
+
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Vault #{vaultID}</Text>
                 {error !== null && (
                     <Text style={styles.missingText}>MISSING</Text>
                 )}
-                {error === null && (isLocked === true ? (
-                    <Text style={styles.lockedText}>LOCKED</Text>
-                ) : (
-                    <Text style={styles.unlockedText}>UNLOCKED</Text>
-                ))}
+                {error === null &&
+                    (isLocked === true ? (
+                        <Text style={styles.lockedText}>LOCKED</Text>
+                    ) : (
+                        <Text style={styles.unlockedText}>UNLOCKED</Text>
+                    ))}
             </View>
             <Image
                 source={require("../../assets/images/vault.png")}
