@@ -17,6 +17,7 @@ import UnlockedContent from "../../components/UnlockedContent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createHash } from "../crypto/utils";
 import { FlowHelper } from "../../flow/FlowHelper";
+import { scripts } from '../../flow/CadenceToJson.json';
 
 const styles = StyleSheet.create({
     container: {
@@ -125,16 +126,7 @@ export default function Vault({ route }: Props) {
             let vault = null;
             try {
                 vault = await flowHelper.runScript(
-                    `
-    import VaultService from 0xbbbeb7f62d6d47dd
-
-    pub fun main(vaultID: UInt64):AnyStruct {
-        let address = VaultService.vaultAddresses[vaultID] ?? panic("No address found")
-        let vaultCollection = getAccount(address).getCapability<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection).borrow()
-            ?? panic("Could not borrow capability from public collection")
-        let vault = vaultCollection.borrowVault(uuid: vaultID)
-        return vault
-    }`,
+                    scripts.GetVaultByVaultID,
                     (arg: any, t: any) => [
                         arg(parseInt(vaultID.toString()).toString(), t.UInt64),
                     ]

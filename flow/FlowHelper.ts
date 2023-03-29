@@ -3,7 +3,12 @@ import { SHA3 } from "sha3";
 import { Account } from "../account/Accounts";
 import { Buffer } from "buffer";
 
+const c2j = require('./CadenceToJson.json')
 const fcl = require("@onflow/fcl");
+
+fcl.config({
+    'accessNode.api': 'https://access-testnet.onflow.org'
+})
 
 const ec = new EC("secp256k1");
 
@@ -52,15 +57,23 @@ export class FlowHelper {
     constructor(account: Account | undefined, network = "testnet") {
         this.fcl = fcl;
         this.account = account;
-        const config = this.fcl.config();
-        if (network === "testnet") {
-            config.put("accessNode.api", "https://rest-testnet.onflow.org");
-        } else if (network === "mainnet") {
-            config.put("accessNode.api", "https://rest-mainnet.onflow.org");
-        } else {
-            throw new Error(`Invalid network: ${network}`);
-        }
+        const config = this.fcl.config({
+            "accessNode.api": `${
+                network === 'testnet' ?
+                    'https://access-testnet.onflow.org'
+                    :
+                    'https://rest-mainnet.onflow.org'
+            }`,
+        })
         config.put("flow.network", network);
+
+        const contractAddresses = c2j.vars[network]
+        Object.keys(contractAddresses).forEach((key) => {
+            if (key && contractAddresses[key]) {   
+                config.put(key, contractAddresses[key])
+                config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])
+            }
+        })
     }
 
     async runScript(
