@@ -220,10 +220,11 @@ export default function Vault({ route }: Props) {
                 }}
             >
                 <Button
+                    type="clear"
                     icon={{
                         name: "share",
                         size: 25,
-                        color: "white",
+                        color: "black",
                     }}
                     onPress={onShare}
                 />
