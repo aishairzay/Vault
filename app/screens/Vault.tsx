@@ -109,11 +109,12 @@ export default function Vault({ route }: Props) {
     useEffect(() => {
         const getVault = async () => {
             const flowHelper = new FlowHelper(undefined);
+            //await flowHelper.setup();
             let vault = null
             try {
                 vault = await flowHelper.runScript(
                     `
-    import VaultService from 0xbbbeb7f62d6d47dd
+    import "VaultService"
 
     pub fun main(vaultID: UInt64):AnyStruct {
         let address = VaultService.vaultAddresses[vaultID] ?? panic("No address found")
