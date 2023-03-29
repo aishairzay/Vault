@@ -109,7 +109,7 @@ export default function Vault({ route }: Props) {
     useEffect(() => {
         const getVault = async () => {
             const flowHelper = new FlowHelper(undefined);
-            //await flowHelper.setup();
+            await flowHelper.setup();
             let vault = null
             try {
                 vault = await flowHelper.runScript(

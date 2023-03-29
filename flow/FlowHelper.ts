@@ -83,22 +83,27 @@ export class FlowHelper {
 
     
     async setup() {
-        const config = await this.fcl.config()
-        const network = this.network
-        const contractAddresses = c2j.vars[network]
-        Object.keys(contractAddresses).forEach(async (key) => {
-            if (key && contractAddresses[key]) {   
-                console.log('setting up contract address', key, contractAddresses[key])
-                await config.put(key, contractAddresses[key])
-                await config.put(key.slice(2), contractAddresses[key])
-                await config.put(`system.contracts.${key}`, contractAddresses[key])
-                await config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])
+        return new Promise(async (resolve, reject) => {
+            const config = await this.fcl.config()
+            const network = this.network
+            const contractAddresses = c2j.vars[network]
+            Object.keys(contractAddresses).forEach(async (key) => {
+                if (key && contractAddresses[key]) {   
+                    await config.put(key, contractAddresses[key])
+                    await config.put(key.slice(2), contractAddresses[key])
+                    await config.put(`system.contracts.${key}`, contractAddresses[key])
+                    await config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])
 
-                /*await config.put(key.toUpperCase(), contractAddresses[key])
-                await config.put(key.slice(2).toUpperCase(), contractAddresses[key])
-                await config.put(`system.contracts.${key.toUpperCase()}`, contractAddresses[key])
-                await config.put(`system.contracts.${key.slice(2).toUpperCase()}`, contractAddresses[key])*/
-            }
+                    /*await config.put(key.toUpperCase(), contractAddresses[key])
+                    await config.put(key.slice(2).toUpperCase(), contractAddresses[key])
+                    await config.put(`system.contracts.${key.toUpperCase()}`, contractAddresses[key])
+                    await config.put(`system.contracts.${key.slice(2).toUpperCase()}`, contractAddresses[key])*/
+                }
+            })
+            setTimeout(() => {
+                //idling
+                resolve(null)
+            }, 1000)
         })
     }
 
