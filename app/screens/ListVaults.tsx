@@ -6,6 +6,7 @@ import { RouteProp } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlowHelper } from "../../flow/FlowHelper";
 import { createOrGetFlowAccount } from "../utils/getFlowAccount";
+import { scripts } from '../../flow/CadenceToJson.json';
 
 const styles = StyleSheet.create({
     container: {
@@ -77,21 +78,7 @@ export default function ListVaults({ navigation }: Props) {
             let vaults = null;
             try {
                 vaults = await flowHelper.runScript(
-                    `
-    import VaultService from 0xbbbeb7f62d6d47dd
-
-    pub fun main(address: Address):[AnyStruct] {
-        let vaultCollection = getAccount(address).getCapability<&{VaultService.VaultCollectionPublic}>(/public/VaultCollection).borrow()
-          ?? panic("Could not borrow capability from public collection")
-        let ids = vaultCollection.getIDs()
-        var vaults: [AnyStruct] = []
-        for id in ids {
-          let vault = vaultCollection.borrowVault(uuid: id)
-          vaults.append(vault)
-        }
-        return vaults
-    }
-    `,
+                    scripts.GetVaults,
                     (arg: any, t: any) => [arg(account.address, t.Address)]
                 );
             } catch (e) {
