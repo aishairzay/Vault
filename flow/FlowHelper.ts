@@ -6,6 +6,10 @@ import { Buffer } from "buffer";
 const c2j = require('./CadenceToJson.json')
 const fcl = require("@onflow/fcl");
 
+fcl.config({
+    'accessNode.api': 'https://access-testnet.onflow.org'
+})
+
 const ec = new EC("secp256k1");
 
 const hashMsgHex = (msgHex: string) => {
@@ -48,62 +52,27 @@ const authorizationFunction = (
 export class FlowHelper {
     fcl: any;
     account: Account | undefined;
-    network: string;
 
     // If only running scripts, you can send in an empty account
     constructor(account: Account | undefined, network = "testnet") {
         this.fcl = fcl;
         this.account = account;
-        this.network = network;
-        const config = this.fcl.config()
-        if (network === "testnet") {
-            config.put("accessNode.api", "https://rest-testnet.onflow.org");
-        } else if (network === "mainnet") {
-            config.put("accessNode.api", "https://rest-mainnet.onflow.org");
-        } else {
-            throw new Error(`Invalid network: ${network}`);
-        }
+        const config = this.fcl.config({
+            "accessNode.api": `${
+                network === 'testnet' ?
+                    'https://access-testnet.onflow.org'
+                    :
+                    'https://rest-mainnet.onflow.org'
+            }`,
+        })
         config.put("flow.network", network);
 
         const contractAddresses = c2j.vars[network]
         Object.keys(contractAddresses).forEach((key) => {
             if (key && contractAddresses[key]) {   
                 config.put(key, contractAddresses[key])
-                config.put(key.slice(2), contractAddresses[key])
-                config.put(`system.contracts.${key}`, contractAddresses[key])
                 config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])
-
-                /*config.put(key, contractAddresses[key])
-                config.put(key.slice(2), contractAddresses[key])
-                config.put(`system.contracts.${key}`, contractAddresses[key])
-                config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])*/
             }
-        })
-    }
-
-    
-    async setup() {
-        return new Promise(async (resolve, reject) => {
-            const config = await this.fcl.config()
-            const network = this.network
-            const contractAddresses = c2j.vars[network]
-            Object.keys(contractAddresses).forEach(async (key) => {
-                if (key && contractAddresses[key]) {   
-                    await config.put(key, contractAddresses[key])
-                    await config.put(key.slice(2), contractAddresses[key])
-                    await config.put(`system.contracts.${key}`, contractAddresses[key])
-                    await config.put(`system.contracts.${key.slice(2)}`, contractAddresses[key])
-
-                    /*await config.put(key.toUpperCase(), contractAddresses[key])
-                    await config.put(key.slice(2).toUpperCase(), contractAddresses[key])
-                    await config.put(`system.contracts.${key.toUpperCase()}`, contractAddresses[key])
-                    await config.put(`system.contracts.${key.slice(2).toUpperCase()}`, contractAddresses[key])*/
-                }
-            })
-            setTimeout(() => {
-                //idling
-                resolve(null)
-            }, 1000)
         })
     }
 
@@ -111,7 +80,6 @@ export class FlowHelper {
         scriptCode: string,
         scriptArgs: any = (arg: any, t: any) => []
     ): Promise<any> {
-        console.log('fcl config state:', await this.fcl.config().all())
         return await this.fcl.query({
             cadence: scriptCode,
             args: scriptArgs,
