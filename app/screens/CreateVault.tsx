@@ -125,10 +125,10 @@ type Props = {
 };
 
 export default function CreateVault({ navigation }: Props) {
-    
+
     const [type, setType] = useState("riddle");
     const [input, setInput] = useState({} as any);
-    const [creationStatus, setCreationStatus] = useState<string|null>(null);
+    const [creationStatus, setCreationStatus] = useState<string | null>(null);
 
     const createVault = async () => {
         try {
@@ -199,6 +199,8 @@ export default function CreateVault({ navigation }: Props) {
                     >
                         <Text style={styles.text}>X</Text>
                     </TouchableOpacity>
+                </View>
+                <View style={styles.centerContainer}>
                     <Text style={styles.creationStatusText}>{creationStatus}</Text>
                 </View>
             </View>
@@ -282,7 +284,7 @@ export default function CreateVault({ navigation }: Props) {
                                 A Secret Message
                             </Text>
                         </View>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={{
                                 marginRight: 10,
                                 ...styles.disabledOption,
@@ -301,7 +303,7 @@ export default function CreateVault({ navigation }: Props) {
                                 An NFT
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={{
                                 marginRight: 10,
                                 ...styles.disabledOption,
