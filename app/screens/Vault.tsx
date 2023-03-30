@@ -3,14 +3,14 @@ import {
     Text,
     StyleSheet,
     Image,
-    StatusBar,
     KeyboardAvoidingView,
     Share,
 } from "react-native";
 import { Button } from "react-native-elements";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useLayoutEffect } from "react";
 import LockedContent from "../../components/LockedContent";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { HeaderBackButton } from '@react-navigation/elements';
 import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
 import UnlockedContent from "../../components/UnlockedContent";
@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createHash } from "../crypto/utils";
 import { FlowHelper } from "../../flow/FlowHelper";
 import { scripts } from '../../flow/CadenceToJson.json';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -102,7 +103,7 @@ type Props = {
     route: VaultScreenRouteProp;
 };
 
-export default function Vault({ route }: Props) {
+export default function Vault({ route, navigation }: Props) {
     const [vault, setVault] = React.useState<any | null>(null);
     const [password, setPassword] = React.useState<string>("");
     const [isLocked, setIsLocked] = React.useState<boolean>(true);
@@ -119,6 +120,21 @@ export default function Vault({ route }: Props) {
             url: `https://moharsvault.gg/${vaultID}`,
         });
     };
+    const handleBackButtonPress = useCallback(() => {
+        // Specify the screen you want to navigate to when the back button is pressed
+        navigation.navigate('Home');
+    }, [navigation]);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => (
+                <HeaderBackButton
+                onPress={handleBackButtonPress}
+                tintColor="black"
+              />
+            ),
+        });
+    }, [navigation, handleBackButtonPress]);
 
     useEffect(() => {
         const getVault = async () => {
@@ -200,7 +216,6 @@ export default function Vault({ route }: Props) {
                 },
             ]}
         >
-            <StatusBar barStyle="dark-content" backgroundColor="#ecf0f1" />
             <View style={styles.grayBackground} />
             <View
                 style={{
