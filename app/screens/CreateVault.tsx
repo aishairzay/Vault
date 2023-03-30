@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     Alert,
     KeyboardAvoidingView,
+    ScrollView
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "black",
-        alignItems: "center", // Add alignItems center
+        alignItems: "center",
     },
     centerContainer: {
         flexDirection: "row",
@@ -67,17 +68,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 10,
         height: 50,
-        width: "75%",
-        textAlign: "left",
-        textAlignVertical: "center",
-        marginTop: 10,
-    },
-    largeInput: {
-        backgroundColor: "white",
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        height: 100,
-        width: 100,
+        width: "100%",
         textAlign: "left",
         textAlignVertical: "center",
         marginTop: 10,
@@ -85,9 +76,10 @@ const styles = StyleSheet.create({
     headerText: {
         color: "white",
         marginHorizontal: 5,
-        marginBottom: 5,
+        marginBottom: 10,
         marginTop: 32,
-        fontSize: 16,
+        fontSize: 18,
+        fontWeight: 700
     },
     creationStatusText: {
         color: "white",
@@ -216,133 +208,135 @@ export default function CreateVault({ navigation }: Props) {
                 >
                     <Text style={styles.text}>X</Text>
                 </TouchableOpacity>
-                <Text style={{ marginRight: 125, ...styles.text }}>
+                <Text style={{ marginRight: 125, paddingBottom: 10, ...styles.text }}>
                     Create Vault
                 </Text>
             </View>
-            <Text style={styles.headerText}>How can the vault be opened?</Text>
-            <View style={{ flexDirection: "row" }}>
-                <View
-                    style={styles.selectedOption}
-                    onResponderRelease={() => setType("riddle")}
+            <ScrollView style={{ keyboardShouldPersistTaps: 'handled' }}>
+                <KeyboardAvoidingView
+                    behavior="position"
+                    keyboardVerticalOffset={80}
                 >
-                    <Image source={require("../../assets/images/riddle.png")} />
-                    <Text style={styles.imageText}>Solve a Riddle</Text>
-                </View>
-                <TouchableOpacity style={styles.disabledOption} onPress={() => {
-                    createToast("This feature is not yet available.")
-                }}>
-                    <Image source={require("../../assets/images/play.png")} />
-                    <Text style={[styles.imageText, styles.disabledText]}>
-                        Play a game
-                    </Text>
-                </TouchableOpacity>
-            </View>
-            {type === "riddle" && (
-                <>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter the riddle description/hint"
-                        placeholderTextColor="#4d4d4d"
-                        onChangeText={(text) => {
-                            setInput({
-                                ...input,
-                                description: text,
-                            });
-                        }}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter the riddle answer"
-                        placeholderTextColor="#4d4d4d"
-                        onChangeText={(text) => {
-                            setInput({
-                                ...input,
-                                riddleAnswer: text,
-                            });
-                        }}
-                    />
-                    <Text style={styles.headerText}>What's in the vault?</Text>
-                    <View
-                        style={{
-                            flexDirection: "row",
-                            alignItems: "flex-start",
-                            justifyContent: "space-between",
-                        }}
-                    >
+                    <Text style={styles.headerText}>How can the vault be opened?</Text>
+                    <View style={{ flexDirection: "row" }}>
                         <View
-                            style={{
-                                marginRight: 10,
-                                ...styles.selectedOption,
-                            }}
+                            style={styles.selectedOption}
+                            onResponderRelease={() => setType("riddle")}
                         >
-                            <Image
-                                source={require("../../assets/images/secretmessage.png")}
-                                style={{ width: 100, height: 100 }}
-                            />
-                            <Text style={styles.imageText}>
-                                A Secret Message
-                            </Text>
+                            <Image source={require("../../assets/images/riddle.png")} />
+                            <Text style={styles.imageText}>Solve a Riddle</Text>
                         </View>
-                        <TouchableOpacity
-                            style={{
-                                marginRight: 10,
-                                ...styles.disabledOption,
-                            }}
-                            onPress={() => {
-                                createToast("This feature is not yet available.")
-                            }}
-                        >
-                            <Image
-                                source={require("../../assets/images/kitty.png")}
-                                style={{ width: 100, height: 100 }}
-                            />
-                            <Text
-                                style={[styles.imageText, styles.disabledText]}
-                            >
-                                An NFT
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{
-                                marginRight: 10,
-                                ...styles.disabledOption,
-                            }}
-                            onPress={() => {
-                                createToast("This feature is not yet available.")
-                            }}
-                        >
-                            <Image
-                                source={require("../../assets/images/flow.png")}
-                                style={{ width: 100, height: 100 }}
-                            />
-                            <Text
-                                style={[styles.imageText, styles.disabledText]}
-                            >
-                                Custom on- {"\n"}
-                                chain Action
+                        <TouchableOpacity style={styles.disabledOption} onPress={() => {
+                            createToast("This feature is not yet available.")
+                        }}>
+                            <Image source={require("../../assets/images/play.png")} />
+                            <Text style={[styles.imageText, styles.disabledText]}>
+                                Play a game
                             </Text>
                         </TouchableOpacity>
                     </View>
-                    <KeyboardAvoidingView
-                        behavior="position"
-                        style={{ paddingLeft: 80, width: "100%" }}
-                    >
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter the secret message"
-                            placeholderTextColor="#4d4d4d"
-                            onChangeText={(text) => {
-                                setInput({
-                                    ...input,
-                                    riddleSecret: text,
-                                });
-                            }}
-                        />
-                    </KeyboardAvoidingView>
-                </>
-            )}
-            <VaultButton onPress={createVault} text="Create Vault" />
+                    {type === "riddle" && (
+                        <>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter the riddle description/hint"
+                                placeholderTextColor="#4d4d4d"
+                                onChangeText={(text) => {
+                                    setInput({
+                                        ...input,
+                                        description: text,
+                                    });
+                                }}
+                            />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter the riddle answer"
+                                placeholderTextColor="#4d4d4d"
+                                onChangeText={(text) => {
+                                    setInput({
+                                        ...input,
+                                        riddleAnswer: text,
+                                    });
+                                }}
+                            />
+                            <Text style={styles.headerText}>What's in the vault?</Text>
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "flex-start",
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        marginRight: 10,
+                                        ...styles.selectedOption,
+                                    }}
+                                >
+                                    <Image
+                                        source={require("../../assets/images/secretmessage.png")}
+                                        style={{ width: 100, height: 100 }}
+                                    />
+                                    <Text style={styles.imageText}>
+                                        A Secret Message
+                                    </Text>
+                                </View>
+                                <TouchableOpacity
+                                    style={{
+                                        marginRight: 10,
+                                        ...styles.disabledOption,
+                                    }}
+                                    onPress={() => {
+                                        createToast("This feature is not yet available.")
+                                    }}
+                                >
+                                    <Image
+                                        source={require("../../assets/images/kitty.png")}
+                                        style={{ width: 100, height: 100 }}
+                                    />
+                                    <Text
+                                        style={[styles.imageText, styles.disabledText]}
+                                    >
+                                        An NFT
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={{
+                                        marginRight: 10,
+                                        ...styles.disabledOption,
+                                    }}
+                                    onPress={() => {
+                                        createToast("This feature is not yet available.")
+                                    }}
+                                >
+                                    <Image
+                                        source={require("../../assets/images/flow.png")}
+                                        style={{ width: 100, height: 100 }}
+                                    />
+                                    <Text
+                                        style={[styles.imageText, styles.disabledText]}
+                                    >
+                                        Custom on- {"\n"}
+                                        chain Action
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter the secret message"
+                                placeholderTextColor="#4d4d4d"
+                                onChangeText={(text) => {
+                                    setInput({
+                                        ...input,
+                                        riddleSecret: text,
+                                    });
+                                }}
+                            />
+                        </>
+                    )}
+                    <VaultButton onPress={createVault} text="Create Vault" />
+                </KeyboardAvoidingView>
+            </ScrollView>
         </View>
     );
 }

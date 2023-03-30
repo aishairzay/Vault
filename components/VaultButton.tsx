@@ -13,11 +13,13 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 100,
         marginTop: 30,
+        textAlign: 'center'
     },
     newVaultButtonText: {
         color: "white",
         fontWeight: "bold",
         fontSize: 16,
+        textAlign: 'center'
     },
 });
 

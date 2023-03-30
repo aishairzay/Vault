@@ -6,6 +6,7 @@ import {
     TextInput,
     Image,
     KeyboardAvoidingView,
+    ScrollView
 } from "react-native";
 import React, { useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -95,7 +96,7 @@ export default function Home({ navigation }: Props) {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={{ ...styles.container }}>
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Mohar's Vault</Text>
             </View>
@@ -118,43 +119,46 @@ export default function Home({ navigation }: Props) {
                     onPress={handleGoToList}
                 />
             </View>
-            <Text
-                style={{
-                    color: "white",
-                    marginHorizontal: 5,
-                    marginBottom: 5,
-                    marginTop: 48,
-                    alignSelf: "flex-start",
-                    fontSize: 16,
-                }}
-            >
-                Enter a Vault ID
-            </Text>
-            <KeyboardAvoidingView
-                style={[styles.inputContainer, { backgroundColor: "white" }]}
-            >
-                <TextInput
-                    style={styles.input}
-                    placeholder="Vault ID"
-                    placeholderTextColor="gray"
-                    value={vaultId}
-                    onChangeText={setVaultId}
+            <ScrollView style={{ keyboardShouldPersistTaps: 'handled' }}>
+                <Text
+                    style={{
+                        color: "white",
+                        marginHorizontal: 5,
+                        marginBottom: 5,
+                        marginTop: 48,
+                        alignSelf: "flex-start",
+                        fontSize: 16,
+                    }}
+                >
+                    Enter a Vault ID
+                </Text>
+                <KeyboardAvoidingView
+                    style={[styles.inputContainer, { backgroundColor: "white" }]}
+                >
+                    <TextInput
+                        inputMode="numeric"
+                        style={styles.input}
+                        placeholder="Vault ID"
+                        placeholderTextColor="gray"
+                        value={vaultId}
+                        onChangeText={setVaultId}
+                    />
+                </KeyboardAvoidingView>
+                <TouchableOpacity
+                    style={{ marginTop: 0, alignSelf: "flex-start" }}
+                    onPress={handleGoToVault}
+                >
+                    <Text style={styles.headerText}>Go to Vault {vaultId}</Text>
+                </TouchableOpacity>
+                <View style={styles.dividerContainer}>
+                    <Text style={styles.dividerText}>OR</Text>
+                </View>
+                <Image
+                    source={require("../../assets/images/lock.png")}
+                    style={{ alignSelf: "center", marginTop: 30 }}
                 />
-            </KeyboardAvoidingView>
-            <TouchableOpacity
-                style={{ marginTop: 0, alignSelf: "flex-start" }}
-                onPress={handleGoToVault}
-            >
-                <Text style={styles.headerText}>Go to Vault {vaultId}</Text>
-            </TouchableOpacity>
-            <View style={styles.dividerContainer}>
-                <Text style={styles.dividerText}>OR</Text>
-            </View>
-            <Image
-                source={require("../../assets/images/lock.png")}
-                style={{ alignSelf: "center", marginTop: 30 }}
-            />
-            <VaultButton onPress={handleGoToCreate} text="Create a new vault" />
+                <VaultButton onPress={handleGoToCreate} text="Create a new vault" />
+            </ScrollView>
         </View>
     );
 }
