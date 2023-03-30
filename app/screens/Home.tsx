@@ -12,6 +12,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
 import VaultButton from "../../components/VaultButton";
+import { Button } from "react-native-elements";
 
 const styles = StyleSheet.create({
     container: {
@@ -98,6 +99,25 @@ export default function Home({ navigation }: Props) {
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Mohar's Vault</Text>
             </View>
+            <View
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    marginTop: 60,
+                    marginRight: 15,
+                }}
+            >
+                <Button
+                    type="clear"
+                    icon={{
+                        name: "person",
+                        size: 25,
+                        color: "white",
+                    }}
+                    onPress={handleGoToList}
+                />
+            </View>
             <Text
                 style={{
                     color: "white",
@@ -135,7 +155,6 @@ export default function Home({ navigation }: Props) {
                 style={{ alignSelf: "center", marginTop: 30 }}
             />
             <VaultButton onPress={handleGoToCreate} text="Create a new vault" />
-            <VaultButton onPress={handleGoToList} text="Your vaults" />
         </View>
     );
 }
