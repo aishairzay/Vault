@@ -41,6 +41,7 @@ function RootLayoutNav() {
                         headerTitleStyle: {
                             fontWeight: "bold",
                         },
+                        headerTitle: "",
                     }}
                 >
                     <Stack.Screen name="Home" component={Home} />
