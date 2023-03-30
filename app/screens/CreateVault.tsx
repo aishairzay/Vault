@@ -24,6 +24,7 @@ import {
 } from "../crypto/utils";
 import createToast from '../utils/toast'
 import { transactions } from '../../flow/CadenceToJson.json';
+const createVaultGif = require('../../assets/images/create-vault.gif')
 
 const styles = StyleSheet.create({
     container: {
@@ -180,6 +181,7 @@ export default function CreateVault({ navigation }: Props) {
             createToast("We ran into an error creating your vault. Maybe try again?")
         }
     };
+    
 
     if (creationStatus) {
         return (
@@ -195,6 +197,10 @@ export default function CreateVault({ navigation }: Props) {
                 <View style={styles.centerContainer}>
                     <Text style={styles.creationStatusText}>{creationStatus}</Text>
                 </View>
+                <Image
+                    source={createVaultGif}
+                    style={{ alignSelf: "center", marginTop: 50, width: 300, height: 300}}
+                />
             </View>
         )
     }

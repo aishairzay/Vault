@@ -137,9 +137,9 @@ export default function Vault({ route, navigation }: Props) {
         navigation.setOptions({
             headerLeft: () => (
                 <HeaderBackButton
-                onPress={handleBackButtonPress}
-                tintColor="black"
-              />
+                    onPress={handleBackButtonPress}
+                    tintColor="black"
+                />
             ),
         });
     }, [navigation, handleBackButtonPress]);

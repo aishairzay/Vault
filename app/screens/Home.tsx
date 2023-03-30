@@ -14,6 +14,7 @@ import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
 import VaultButton from "../../components/VaultButton";
 import { Button } from "react-native-elements";
+const lock = require('../../assets/images/lock.png')
 
 const styles = StyleSheet.create({
     container: {
@@ -154,7 +155,7 @@ export default function Home({ navigation }: Props) {
                     <Text style={styles.dividerText}>OR</Text>
                 </View>
                 <Image
-                    source={require("../../assets/images/lock.png")}
+                    source={lock}
                     style={{ alignSelf: "center", marginTop: 30 }}
                 />
                 <VaultButton onPress={handleGoToCreate} text="Create a new vault" />

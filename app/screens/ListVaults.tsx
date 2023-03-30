@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, ScrollView } from "react-native";
 import React, { useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../root";
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 20,
         marginTop: 20,
-        textAlign: "center",
+        textAlign: "left",
         marginHorizontal: 20,
         fontWeight: "bold",
         paddingHorizontal: 5,
@@ -141,7 +141,9 @@ export default function ListVaults({ navigation }: Props) {
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Your Vaults</Text>
             </View>
-            {content}
+            <ScrollView>
+                {content}
+            </ScrollView>
         </View>
     );
 }

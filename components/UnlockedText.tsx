@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 export default function UnlockedText({ text }: { text: string }) {
     return (
         <>
-            <ParagraphText text="It seems there is a note with a message inside" />
+            <ParagraphText text="There is a note with a message inside.." />
             <Text style={styles.text}>{text}</Text>
         </>
     )
