@@ -5,6 +5,9 @@ import {
     Image,
     KeyboardAvoidingView,
     Share,
+    ScrollView,
+    Keyboard,
+    StatusBar
 } from "react-native";
 import { Button } from "react-native-elements";
 import React, { useEffect, useCallback, useLayoutEffect } from "react";
@@ -18,6 +21,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createHash } from "../crypto/utils";
 import { FlowHelper } from "../../flow/FlowHelper";
 import { scripts } from '../../flow/CadenceToJson.json';
+import toast from '../utils/toast';
+const vaultUnlockingGif = require('../../assets/images/vault-unlocking.gif')
+const closedVault = require("../../assets/images/vault.png")
+const openVault = require("../../assets/images/open-vault.png")
 
 
 const styles = StyleSheet.create({
@@ -107,6 +114,7 @@ export default function Vault({ route, navigation }: Props) {
     const [vault, setVault] = React.useState<any | null>(null);
     const [password, setPassword] = React.useState<string>("");
     const [isLocked, setIsLocked] = React.useState<boolean>(true);
+    const [showUnlockAnimation, setShowUnlockAnimation] = React.useState<boolean>(false)
     const [error, setError] = React.useState<string | null>(null);
     const vaultID = route.params.vaultID;
 
@@ -169,7 +177,15 @@ export default function Vault({ route, navigation }: Props) {
                 vault.hashAlgorithm
             );
             if (passwordHash === vault.hashControl) {
+                setShowUnlockAnimation(true)
+                setTimeout(() => {
+                    setShowUnlockAnimation(false)
+                }, 3500);
                 setIsLocked(false);
+            } else {
+                toast("Hmm.. Nothing happened, wrong code maybe?", 'warning')
+                Keyboard.dismiss()
+                setIsLocked(true);
             }
         };
         run();
@@ -188,72 +204,123 @@ export default function Vault({ route, navigation }: Props) {
         );
     } else if (vault !== null) {
         content = (
-            <KeyboardAvoidingView
-                behavior="padding"
-                keyboardVerticalOffset={120}
-            >
+            <>
                 {isLocked ? (
                     <LockedContent vault={vault} submitPassword={setPassword} />
                 ) : (
                     <UnlockedContent answer={password} vault={vault} />
                 )}
-            </KeyboardAvoidingView>
+            </>
         );
     }
 
-    return (
-        <View
-            style={[
-                {
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "black",
-                    paddingTop: insets.top,
-                    paddingBottom: insets.bottom,
-                    paddingLeft: insets.left,
-                    paddingRight: insets.right,
-                },
-            ]}
-        >
-            <View style={styles.grayBackground} />
+    if (showUnlockAnimation) {
+        return (
             <View
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    marginTop: 50,
-                    marginRight: 15,
-                }}
+                style={[
+                    {
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "black",
+                    },
+                ]}
             >
-                <Button
-                    type="clear"
-                    icon={{
-                        name: "share",
-                        size: 25,
-                        color: "black",
+                <ScrollView
+                    style={{
+                        marginTop: 120,
+                        
                     }}
-                    onPress={onShare}
-                />
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{
+                        paddingTop: insets.top,
+                        paddingBottom: insets.bottom,
+                        paddingLeft: insets.left,
+                        paddingRight: insets.right,
+                    }}>
+                        <Image
+                            source={vaultUnlockingGif}
+                            style={{ alignSelf: "center", marginTop: 50, width: 300, height: 300}}
+                        />
+                        <Text style={{ ...styles.text, paddingTop: 20 }}>Something is happening...</Text>
+                    </View>
+                </ScrollView>
             </View>
+        )
+    }
 
-            <View style={styles.centerContainer}>
-                <Text style={styles.text}>Vault #{vaultID}</Text>
-                {error !== null && (
-                    <Text style={styles.missingText}>MISSING</Text>
-                )}
-                {error === null &&
-                    (isLocked === true ? (
-                        <Text style={styles.lockedText}>LOCKED</Text>
-                    ) : (
-                        <Text style={styles.unlockedText}>UNLOCKED</Text>
-                    ))}
+    return (
+        <>
+            <View
+                style={[
+                    {
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "black",
+                    },
+                ]}
+            >
+                <StatusBar barStyle="dark-content" backgroundColor="#ecf0f1" />
+                <View style={styles.grayBackground} />
+                <View
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        marginTop: 50,
+                        marginRight: 15,
+                    }}
+                >
+                    <Button
+                        type="clear"
+                        icon={{
+                            name: "share",
+                            size: 25,
+                            color: "black",
+                        }}
+                        onPress={onShare}
+                    />
+                </View>
+                <ScrollView
+                    style={{
+                        marginTop: 60,
+                        
+                    }}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{
+                        paddingTop: insets.top,
+                        paddingBottom: insets.bottom,
+                        paddingLeft: insets.left,
+                        paddingRight: insets.right,
+                    }}>
+                        <KeyboardAvoidingView
+                            behavior="position"
+                            keyboardVerticalOffset={120}
+                        >
+                            <View style={styles.centerContainer}>
+                                <Text style={styles.text}>Vault #{vaultID}</Text>
+                                {error !== null && (
+                                    <Text style={styles.missingText}>MISSING</Text>
+                                )}
+                                {error === null &&
+                                    (isLocked === true ? (
+                                        <Text style={styles.lockedText}>LOCKED</Text>
+                                    ) : (
+                                        <Text style={styles.unlockedText}>UNLOCKED</Text>
+                                    ))}
+                            </View>
+                            <Image
+                                source={isLocked ? closedVault : openVault}
+                                style={{ alignSelf: "center", marginTop: 30, width: 250, height: 250}}
+                            />
+                            {content}
+                        </KeyboardAvoidingView>
+                    </View>
+                </ScrollView>
             </View>
-            <Image
-                source={require("../../assets/images/vault.png")}
-                style={{ alignSelf: "center", marginTop: 30 }}
-            />
-            {content}
-        </View>
+        </>
     );
 }
