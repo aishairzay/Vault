@@ -44,7 +44,7 @@ pub contract SomeStandardVaultActions {
       return self.leaderboard
     }
 
-    pub fun execute(vault: &VaultService.Vault, address: Address) {
+    pub fun execute(vaultID: UInt64, address: Address) {
       if self.leaderboardMap[address] == nil {
         self.leaderboardMap[address] = true
         self.leaderboard.append(address)
@@ -77,7 +77,7 @@ pub contract SomeStandardVaultActions {
       self.nftID = nftID
     }
 
-    pub fun execute(vault: &VaultService.Vault, address: Address) {
+    pub fun execute(vaultID: UInt64, address: Address) {
       let nftCollection = self.nftAccess.borrow()
         ?? panic("Could not borrow NFT collection")
 

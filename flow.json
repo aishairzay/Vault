@@ -23,6 +23,7 @@
 			}
 		},
 		"SomeStandardVaultActions": "cadence/contracts/SomeStandardVaultActions.cdc",
+		"VaultExecutionSignatures": "cadence/contracts/VaultExecutionSignatures.cdc",
 		"VaultService": "cadence/contracts/VaultService.cdc"
 	},
 	"networks": {
@@ -34,7 +35,7 @@
 	"accounts": {
 		"default": {
 			"address": "f3fcd2c1a78f5eee",
-			"key": "ef3db01ab0ebcc7323f5aafab730a2a32e655c9ba81cdc95c98d852d3a4cf7da"
+			"key": "f66227e93c3ddf22451eb8bab13bcc74202bdbcb188bc6a6c25df8000e99ccce"
 		},
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
@@ -61,6 +62,7 @@
 				"MetadataViews",
 				"NonFungibleToken",
 				"SomeStandardVaultActions",
+				"VaultExecutionSignatures",
 				"VaultService"
 			]
 		},

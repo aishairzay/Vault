@@ -1,4 +1,5 @@
 import "MetadataViews"
+import "VaultExecutionSignatures"
 
 pub contract VaultService {
   // Events
@@ -18,7 +19,7 @@ pub contract VaultService {
     // The vault that was opened should be passed in as a reference
     // and the address that opened it is provided as well, allowing for
     // actions to be taken that affect that account.
-    pub fun execute(vault: &Vault, address: Address)
+    pub fun execute(vaultID: UInt64, address: Address)
   }
 
   pub resource interface VaultCollectionPublic {
@@ -105,14 +106,17 @@ pub contract VaultService {
     // of who solved the riddle.
     access(self) let action: Capability<&{VaultAction}>?
 
-    pub fun executeAction: (signedData: String, message: String): Bool {
+    pub fun executeAction(signed: String, message: String): Bool {
       // verify that the provided signatures match up with the on-chain derived public key
       // and through that, find the address that opened up the vault, and ensure that the
       // ID mentioned in the signed data matches the current vault ID.
-      assert(self.action != nil, "An action must exist in order to run execute action")
-      assert(self.derivedPublicKey != nil, "A public key must exist in order to run execute action")
+      assert(self.action != nil, message: "An action must exist in order to run execute action")
+      assert(self.derivedPublicKey != nil, message: "A public key must exist in order to run execute action")
 
-      self.action!.borrow()!.execute(vault: &self, address: address, publicKey: self.derivedPublicKey!)
+      let address = VaultExecutionSignatures.verifySignature(signed: signed, message: message, publicKey: self.derivedPublicKey!)
+      assert(address != nil, message: "Signature verification failed.")
+      self.action!.borrow()!.execute(vaultID: self.id, address: address!)
+
       return true
     }
 
