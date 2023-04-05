@@ -8,12 +8,13 @@ import {
     KeyboardAvoidingView,
     ScrollView
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
 import VaultButton from "../../components/VaultButton";
 import { Button } from "react-native-elements";
+import { getFlowAccount, deleteFlowAccountFromDevice } from '../utils/getFlowAccount';
 const lock = require('../../assets/images/lock.png')
 
 const styles = StyleSheet.create({
@@ -83,6 +84,18 @@ type Props = {
 
 export default function Home({ navigation }: Props) {
     const [vaultId, setVaultId] = useState("");
+    const [shouldShowProfileIcon, setShouldShowProfileIcon] = useState(null)
+
+    useEffect(() => {
+        const run = async () => {
+            // For testing purposes, if you'd like to delete
+            // your existing account, you can run with this
+            // uncommented once, and then re-comment it.
+
+            //await deleteFlowAccountFromDevice()
+        }
+        run()
+    }, [])
 
     const handleGoToVault = () => {
         navigation.navigate("Vault", { vaultID: vaultId });
@@ -96,30 +109,43 @@ export default function Home({ navigation }: Props) {
         navigation.navigate("ListVaults");
     };
 
+    useEffect(() => {
+        const run = async () => {
+            const acc = await getFlowAccount()
+            const shouldShow = !(!acc)
+            setShouldShowProfileIcon(!(!acc))
+        }
+        run()
+    }, [])
+
     return (
         <View style={{ ...styles.container }}>
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Mohar's Vault</Text>
             </View>
-            <View
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    marginTop: 60,
-                    marginRight: 15,
-                }}
-            >
-                <Button
-                    type="clear"
-                    icon={{
-                        name: "person",
-                        size: 25,
-                        color: "white",
-                    }}
-                    onPress={handleGoToList}
-                />
-            </View>
+            {
+                shouldShowProfileIcon && (
+                    <View
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            marginTop: 60,
+                            marginRight: 15,
+                        }}
+                    >
+                        <Button
+                            type="clear"
+                            icon={{
+                                name: "person",
+                                size: 25,
+                                color: "white",
+                            }}
+                            onPress={handleGoToList}
+                        />
+                    </View>
+                )
+            }
             <ScrollView style={{ keyboardShouldPersistTaps: 'handled' }}>
                 <Text
                     style={{

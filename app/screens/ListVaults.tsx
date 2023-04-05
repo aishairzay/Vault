@@ -5,7 +5,7 @@ import { RootStackParamList } from "../root";
 import { RouteProp } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlowHelper } from "../../flow/FlowHelper";
-import { createOrGetFlowAccount } from "../utils/getFlowAccount";
+import { getFlowAccount } from "../utils/getFlowAccount";
 import { scripts } from '../../flow/CadenceToJson.json';
 
 const styles = StyleSheet.create({
@@ -73,7 +73,7 @@ export default function ListVaults({ navigation }: Props) {
 
     useEffect(() => {
         const listVaults = async () => {
-            const account = await createOrGetFlowAccount();
+            const account = await getFlowAccount();
             const flowHelper = new FlowHelper(undefined);
             let vaults = null;
             try {
@@ -108,7 +108,7 @@ export default function ListVaults({ navigation }: Props) {
     } else if (vaults !== null) {
         content = (
             <FlatList
-                style={{ paddingTop: 20 }}
+                style={{ paddingTop: 20, width: '100%' }}
                 data={vaults}
                 renderItem={({ item }) => (
                     <Text
@@ -141,9 +141,7 @@ export default function ListVaults({ navigation }: Props) {
             <View style={styles.centerContainer}>
                 <Text style={styles.text}>Your Vaults</Text>
             </View>
-            <ScrollView>
-                {content}
-            </ScrollView>
+            {content}
         </View>
     );
 }

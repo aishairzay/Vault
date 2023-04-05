@@ -48,8 +48,8 @@ export const createAccount = async (
                 },
             }
         );
-        const txId = lilicoResponse.data.data.txId;
         console.log("Tx returned from Lilico, getting the account ID.");
+        const txId = lilicoResponse.data.data.txId;
         if (!txId) {
             throw new Error("Was not able to get a reply from Lilico");
         }
@@ -87,6 +87,7 @@ export const createAccount = async (
         };
     } catch (err: any) {
         console.error(err);
+        console.error(err.toJSON())
         throw err;
     }
 };

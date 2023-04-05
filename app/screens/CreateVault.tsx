@@ -142,11 +142,11 @@ export default function CreateVault({ navigation }: Props) {
                     return;
                 }
             }
-            setCreationStatus('Finding an assistant to help you...')
+            setCreationStatus("Welcome, first-time vault master! We're forging your shiny new vault key")
             const account = await createOrGetFlowAccount();
             console.log('Retrieved account with address', account.address)
 
-            setCreationStatus('Finding an empty vault to lock away your message...')
+            setCreationStatus('Securing a secret hideout to stash your precious message vault...')
             const flowHelper = new FlowHelper(account);
             const salt = buf2hex(await Crypto.getRandomBytesAsync(8));
             const key = `${salt}:${input.riddleAnswer}`;

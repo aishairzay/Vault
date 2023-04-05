@@ -243,7 +243,7 @@ export default function Vault({ route, navigation }: Props) {
                             source={vaultUnlockingGif}
                             style={{ alignSelf: "center", marginTop: 50, width: 300, height: 300}}
                         />
-                        <Text style={{ ...styles.text, paddingTop: 20 }}>Something is happening...</Text>
+                        <Text style={{ ...styles.text, paddingTop: 20 }}>Cracking the vault's code....</Text>
                     </View>
                 </ScrollView>
             </View>
